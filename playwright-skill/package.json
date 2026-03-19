@@ -1,0 +1,12 @@
+{
+  "name": "playwright-skill",
+  "version": "1.0.0",
+  "description": "Claude Code skill for running Playwright browser automation and E2E tests",
+  "main": "run.js",
+  "scripts": {
+    "start": "node run.js"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0"
+  }
+}
