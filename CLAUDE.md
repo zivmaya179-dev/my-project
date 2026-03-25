@@ -2,8 +2,4 @@
 
 ## Startup
 
-Run ruflo in the background when starting a session:
-
-```
-npx ruflo@latest &
-```
+Ruflo starts automatically in the background via the SessionStart hook in `.claude/settings.json`.
