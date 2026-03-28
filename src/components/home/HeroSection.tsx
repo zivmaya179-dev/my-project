@@ -30,22 +30,20 @@ const HeroSection = () => {
       {/* Content Box - Overflows into next section */}
       <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 translate-y-12 sm:translate-y-16 lg:translate-y-20">
         <div className={cn("max-w-2xl", isRTL ? "ml-auto mr-4 lg:mr-8" : "mr-auto ml-4 lg:ml-8")}>
-          {/* Text Box - optimized for faster render */}
-          <div className={cn("bg-primary/95 px-5 py-5 sm:px-10 sm:py-8 lg:px-12 lg:py-10 shadow-2xl", isRTL && "font-hebrew text-right")}>
+          {/* Text Box - compact to show more of the hero image */}
+          <div className={cn("bg-primary/90 backdrop-blur-sm px-4 py-4 sm:px-8 sm:py-6 lg:px-10 lg:py-8 shadow-2xl", isRTL && "font-hebrew text-right")}>
             {/* Tagline */}
-            <h1 className={cn("text-3xl sm:text-4xl lg:text-5xl font-display font-semibold text-primary-foreground mb-4 leading-tight", isRTL && "font-hebrew")}>
+            <h1 className={cn("text-2xl sm:text-3xl lg:text-5xl font-display font-semibold text-primary-foreground mb-3 leading-tight", isRTL && "font-hebrew")}>
               {t('hero.tagline')}
             </h1>
 
             {/* Gold accent line */}
-            <div className={cn("w-16 h-1 bg-accent mb-6", isRTL && "mr-0 ml-auto")} />
-
+            <div className={cn("w-16 h-1 bg-accent mb-4", isRTL && "mr-0 ml-auto")} />
 
             {/* Sub-headline Line 1 - Context */}
-            <p className={cn("text-xl sm:text-2xl text-primary-foreground/90 font-medium mb-3", isRTL && "font-hebrew")}>
+            <p className={cn("text-base sm:text-xl lg:text-2xl text-primary-foreground/90 font-medium", isRTL && "font-hebrew")}>
               {t('hero.subtitle1')}
             </p>
-
 
           </div>
         </div>
