@@ -1,0 +1,23 @@
+{
+  "swarms": {
+    "swarm-1774687497038-thoill": {
+      "swarmId": "swarm-1774687497038-thoill",
+      "topology": "hierarchical",
+      "maxAgents": 15,
+      "status": "running",
+      "agents": [],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical",
+        "maxAgents": 15,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-03-28T08:44:57.038Z",
+      "updatedAt": "2026-03-28T08:44:57.038Z"
+    }
+  },
+  "version": "3.0.0"
+}
