@@ -1,5 +1,5 @@
 # RuFlo V3 - Complete Capabilities Reference
-> Generated: 2026-03-28T12:24:51.407Z
+> Generated: 2026-03-28T12:41:36.641Z
 > Full documentation: https://github.com/ruvnet/claude-flow
 
 ## 📋 Table of Contents
