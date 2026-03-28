@@ -27,8 +27,8 @@ const HeroSection = () => {
       {/* Spacer to push content box to bottom */}
       <div className="flex-grow" />
 
-      {/* Content Box - Full width at bottom, overflows into next section */}
-      <div className="relative z-20 w-full translate-y-12 sm:translate-y-16 lg:translate-y-20">
+      {/* Content Box - Full width, pushed down to reveal the sea */}
+      <div className="relative z-20 w-full translate-y-[60%] sm:translate-y-[65%] lg:translate-y-[70%]">
         <div className="w-full">
           {/* Text Box - full width bottom bar */}
           <div className={cn("bg-primary/95 px-5 py-5 sm:px-10 sm:py-8 lg:px-12 lg:py-10 shadow-2xl", isRTL && "font-hebrew text-right")}>
