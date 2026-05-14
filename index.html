@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#6366f1" />
+  <title>המילים של לני 📚</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --bg-1: #6366f1;
+      --bg-2: #8b5cf6;
+      --bg-3: #ec4899;
+      --card-bg: #ffffff;
+      --text: #1e1b4b;
+      --muted: #64748b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 20px;
+      --shadow: 0 20px 60px -10px rgba(99, 102, 241, 0.4);
+    }
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Heebo", "Assistant", sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 12px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    header h1 small {
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.85;
+      background: rgba(255,255,255,0.18);
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-right: 4px;
+    }
+    .filter-pill {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-pill:active { transform: scale(0.95); }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      color: white;
+    }
+    .stat {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 14px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+    .stat .num { font-size: 20px; font-weight: 800; line-height: 1; }
+    .stat .label { font-size: 11px; opacity: 0.9; margin-top: 4px; }
+
+    /* Progress bar */
+    .progress-wrap {
+      height: 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      width: 0%;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 999px;
+    }
+
+    /* Card stage */
+    .stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1500px;
+      min-height: 320px;
+      position: relative;
+    }
+    .card {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      max-height: 62vh;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .card.flipped { transform: rotateY(180deg); }
+    .card.swipe-left { animation: swipeLeft 0.4s forwards; }
+    .card.swipe-right { animation: swipeRight 0.4s forwards; }
+    @keyframes swipeLeft {
+      to { transform: translateX(-120%) rotate(-15deg); opacity: 0; }
+    }
+    @keyframes swipeRight {
+      to { transform: translateX(120%) rotate(15deg); opacity: 0; }
+    }
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 22px 38px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .face.back { transform: rotateY(180deg); }
+    .face::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--bg-1), var(--bg-3));
+    }
+    .badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
+      direction: ltr;
+    }
+    .pos-badge {
+      position: static;
+      background: #f1f5f9 !important;
+      color: var(--bg-1) !important;
+      font-size: 12px !important;
+      padding: 3px 10px !important;
+    }
+    .pos-row {
+      direction: ltr;
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    .rp-badge {
+      position: absolute;
+      top: 16px;
+      right: 60px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .rp-badge.prod { background: #10b981; }
+    .rp-badge.rec { background: #f59e0b; }
+    .speaker {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      z-index: 2;
+    }
+    .speaker:active { transform: scale(0.9); background: #e2e8f0; }
+    .word {
+      font-size: clamp(28px, 8vw, 44px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      direction: ltr;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 8px;
+      word-break: break-word;
+      max-width: 100%;
+    }
+    .translation {
+      font-size: clamp(26px, 7vw, 36px);
+      font-weight: 800;
+      color: var(--bg-1);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+    .en-small {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--muted);
+      direction: ltr;
+      margin-bottom: 14px;
+    }
+    .def-hint {
+      font-size: 13px;
+      color: var(--muted);
+      direction: ltr;
+      margin-top: 14px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      font-style: italic;
+      max-width: 100%;
+      line-height: 1.4;
+    }
+    .info-list {
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .info-list > div {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12px;
+      text-align: right;
+      line-height: 1.4;
+    }
+    .info-list .label {
+      color: var(--muted);
+      font-weight: 700;
+      margin-left: 6px;
+    }
+    .info-list .value {
+      color: var(--text);
+      direction: ltr;
+      unicode-bidi: plaintext;
+    }
+    .pos-info .value { direction: ltr; }
+    .hint {
+      position: absolute;
+      bottom: 14px;
+      left: 0;
+      right: 0;
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    /* Empty state */
+    .empty {
+      background: rgba(255,255,255,0.95);
+      border-radius: var(--radius);
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .empty .emoji { font-size: 64px; margin-bottom: 12px; }
+    .empty h2 { font-size: 22px; margin-bottom: 8px; color: var(--text); }
+    .empty p { color: var(--muted); margin-bottom: 20px; font-size: 14px; line-height: 1.5; }
+    .empty button {
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    /* Action buttons */
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    .btn {
+      border: none;
+      border-radius: 16px;
+      padding: 14px 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+      color: white;
+      box-shadow: 0 6px 20px -6px rgba(0,0,0,0.3);
+    }
+    .btn:active { transform: scale(0.94); }
+    .btn .icon { font-size: 20px; }
+    .btn-no { background: linear-gradient(135deg, #ef4444, #f87171); }
+    .btn-skip { background: linear-gradient(135deg, #64748b, #94a3b8); }
+    .btn-yes { background: linear-gradient(135deg, #10b981, #34d399); }
+
+    /* Bottom controls */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+      color: white;
+      font-size: 13px;
+    }
+    .ctrl-btn {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .ctrl-btn:active { transform: scale(0.9); }
+    .counter { font-weight: 700; }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal.open { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      max-width: 380px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 {
+      font-size: 19px;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal h3 {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 14px 0 6px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .modal .close {
+      background: #f1f5f9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 4px;
+    }
+    .option:hover { background: #f8fafc; }
+    .option.active {
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      color: white;
+    }
+    .option-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+    .option-info strong { font-size: 14px; }
+    .option-info small { font-size: 11px; opacity: 0.75; }
+    .option-count {
+      background: rgba(0,0,0,0.08);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .option.active .option-count { background: rgba(255,255,255,0.25); }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 12px;
+      margin-bottom: 6px;
+    }
+    .toggle-row label { font-size: 14px; font-weight: 600; }
+    .danger-btn {
+      width: 100%;
+      background: #fef2f2;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(30, 27, 75, 0.95);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 200;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Celebration */
+    .celebrate {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      animation: fall 2.5s ease-out forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>📚 לני <small id="bandLabel">Band III</small></h1>
+      <button class="filter-pill" id="menuBtn">⚙️ הגדרות</button>
+    </header>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statTotal">0</div><div class="label">סה"כ</div></div>
+      <div class="stat"><div class="num" id="statNew">0</div><div class="label">חדשות</div></div>
+      <div class="stat"><div class="num" id="statLearning">0</div><div class="label">בלימוד</div></div>
+      <div class="stat"><div class="num" id="statLearned">0</div><div class="label">ידועות</div></div>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+    <div class="stage" id="stage"></div>
+
+    <div class="actions" id="actions" style="display:none;">
+      <button class="btn btn-no" data-action="no"><span class="icon">😅</span><span>עדיין לא</span></button>
+      <button class="btn btn-skip" data-action="skip"><span class="icon">⏭️</span><span>דלג</span></button>
+      <button class="btn btn-yes" data-action="yes"><span class="icon">🎯</span><span>יודעת!</span></button>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl-btn" id="shuffleBtn" title="ערבב">🔀</button>
+      <div class="counter" id="counter">0 / 0</div>
+      <button class="ctrl-btn" id="flipBtn" title="הפוך כרטיס">🔄</button>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2>הגדרות <button class="close" id="closeBtn">✕</button></h2>
+
+      <h3>בחירת רמה (Band)</h3>
+      <div id="bandList"></div>
+
+      <h3>סינון לפי סטטוס</h3>
+      <div id="filterList"></div>
+
+      <h3>אפשרויות</h3>
+      <div class="toggle-row">
+        <label for="autospeakToggle">🔊 השמעה אוטומטית של המילה</label>
+        <input type="checkbox" id="autospeakToggle" checked />
+      </div>
+
+      <button class="danger-btn" id="resetBtn">🔄 איפוס התקדמות</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="celebrate" id="celebrate"></div>
+
+  <script src="words.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
