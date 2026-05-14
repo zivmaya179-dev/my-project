@@ -40,7 +40,7 @@
       display: flex;
       flex-direction: column;
       padding: 16px;
-      gap: 14px;
+      gap: 12px;
     }
 
     /* Header */
@@ -51,12 +51,21 @@
       color: white;
     }
     header h1 {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 800;
       letter-spacing: -0.5px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+    }
+    header h1 small {
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.85;
+      background: rgba(255,255,255,0.18);
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-right: 4px;
     }
     .filter-pill {
       background: rgba(255,255,255,0.2);
@@ -114,13 +123,13 @@
       align-items: center;
       justify-content: center;
       perspective: 1500px;
-      min-height: 300px;
+      min-height: 320px;
       position: relative;
     }
     .card {
       width: 100%;
       aspect-ratio: 3 / 4;
-      max-height: 60vh;
+      max-height: 62vh;
       position: relative;
       transform-style: preserve-3d;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -147,7 +156,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 28px;
+      padding: 28px 22px 38px;
       text-align: center;
       overflow: hidden;
     }
@@ -165,11 +174,43 @@
       left: 16px;
       background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
       color: white;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
-      padding: 4px 10px;
+      padding: 4px 9px;
       border-radius: 999px;
+      letter-spacing: 0.3px;
+      direction: ltr;
     }
+    .pos-badge {
+      position: static;
+      background: #f1f5f9 !important;
+      color: var(--bg-1) !important;
+      font-size: 12px !important;
+      padding: 3px 10px !important;
+    }
+    .pos-row {
+      direction: ltr;
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+    .rp-badge {
+      position: absolute;
+      top: 16px;
+      right: 60px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .rp-badge.prod { background: #10b981; }
+    .rp-badge.rec { background: #f59e0b; }
     .speaker {
       position: absolute;
       top: 14px;
@@ -185,42 +226,79 @@
       align-items: center;
       justify-content: center;
       transition: all 0.2s;
+      z-index: 2;
     }
     .speaker:active { transform: scale(0.9); background: #e2e8f0; }
     .word {
-      font-size: clamp(32px, 9vw, 48px);
+      font-size: clamp(28px, 8vw, 44px);
       font-weight: 800;
       letter-spacing: -1px;
       direction: ltr;
       color: var(--text);
       line-height: 1.1;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
+      word-break: break-word;
+      max-width: 100%;
     }
     .translation {
-      font-size: clamp(28px, 8vw, 40px);
+      font-size: clamp(26px, 7vw, 36px);
       font-weight: 800;
       color: var(--bg-1);
-      margin-bottom: 16px;
+      margin-bottom: 8px;
+      line-height: 1.2;
     }
-    .example {
-      font-size: 15px;
+    .en-small {
+      font-size: 16px;
+      font-weight: 600;
       color: var(--muted);
       direction: ltr;
-      line-height: 1.5;
-      font-style: italic;
-      margin-top: 8px;
-      padding: 12px;
-      background: #f8fafc;
-      border-radius: 12px;
-      border-right: 3px solid var(--bg-2);
+      margin-bottom: 14px;
     }
-    .face.back .example { border-right: none; border-left: 3px solid var(--bg-2); }
+    .def-hint {
+      font-size: 13px;
+      color: var(--muted);
+      direction: ltr;
+      margin-top: 14px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      font-style: italic;
+      max-width: 100%;
+      line-height: 1.4;
+    }
+    .info-list {
+      width: 100%;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .info-list > div {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12px;
+      text-align: right;
+      line-height: 1.4;
+    }
+    .info-list .label {
+      color: var(--muted);
+      font-weight: 700;
+      margin-left: 6px;
+    }
+    .info-list .value {
+      color: var(--text);
+      direction: ltr;
+      unicode-bidi: plaintext;
+    }
+    .pos-info .value { direction: ltr; }
     .hint {
       position: absolute;
-      bottom: 18px;
+      bottom: 14px;
       left: 0;
       right: 0;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
       opacity: 0.7;
     }
@@ -256,8 +334,8 @@
     .btn {
       border: none;
       border-radius: 16px;
-      padding: 16px 8px;
-      font-size: 14px;
+      padding: 14px 8px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -269,7 +347,7 @@
       box-shadow: 0 6px 20px -6px rgba(0,0,0,0.3);
     }
     .btn:active { transform: scale(0.94); }
-    .btn .icon { font-size: 22px; }
+    .btn .icon { font-size: 20px; }
     .btn-no { background: linear-gradient(135deg, #ef4444, #f87171); }
     .btn-skip { background: linear-gradient(135deg, #64748b, #94a3b8); }
     .btn-yes { background: linear-gradient(135deg, #10b981, #34d399); }
@@ -311,24 +389,31 @@
       align-items: center;
       justify-content: center;
       z-index: 100;
-      padding: 20px;
+      padding: 16px;
     }
     .modal.open { display: flex; }
     .modal-content {
       background: white;
       border-radius: var(--radius);
-      padding: 24px;
-      max-width: 360px;
+      padding: 20px;
+      max-width: 380px;
       width: 100%;
-      max-height: 80vh;
+      max-height: 90vh;
       overflow-y: auto;
     }
     .modal h2 {
-      font-size: 20px;
-      margin-bottom: 16px;
+      font-size: 19px;
+      margin-bottom: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+    .modal h3 {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 14px 0 6px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
     }
     .modal .close {
       background: #f1f5f9;
@@ -343,28 +428,39 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px;
+      padding: 12px 14px;
       border-radius: 12px;
       cursor: pointer;
       transition: background 0.15s;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .option:hover { background: #f8fafc; }
     .option.active {
       background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
       color: white;
     }
-    .option-info { display: flex; flex-direction: column; gap: 2px; }
-    .option-info strong { font-size: 15px; }
-    .option-info small { font-size: 12px; opacity: 0.7; }
+    .option-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+    .option-info strong { font-size: 14px; }
+    .option-info small { font-size: 11px; opacity: 0.75; }
     .option-count {
       background: rgba(0,0,0,0.08);
       padding: 4px 10px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 700;
+      margin-right: 8px;
     }
     .option.active .option-count { background: rgba(255,255,255,0.25); }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 12px;
+      margin-bottom: 6px;
+    }
+    .toggle-row label { font-size: 14px; font-weight: 600; }
     .danger-btn {
       width: 100%;
       background: #fef2f2;
@@ -420,7 +516,7 @@
 <body>
   <div class="app">
     <header>
-      <h1>📚 המילים שלי</h1>
+      <h1>📚 לני <small id="bandLabel">Band III</small></h1>
       <button class="filter-pill" id="menuBtn">⚙️ הגדרות</button>
     </header>
 
@@ -453,11 +549,17 @@
     <div class="modal-content">
       <h2>הגדרות <button class="close" id="closeBtn">✕</button></h2>
 
-      <h3 style="font-size:14px; color:var(--muted); margin-bottom:8px;">סינון</h3>
+      <h3>בחירת רמה (Band)</h3>
+      <div id="bandList"></div>
+
+      <h3>סינון לפי סטטוס</h3>
       <div id="filterList"></div>
 
-      <h3 style="font-size:14px; color:var(--muted); margin: 16px 0 8px;">לימוד לפי יחידה</h3>
-      <div id="unitList"></div>
+      <h3>אפשרויות</h3>
+      <div class="toggle-row">
+        <label for="autospeakToggle">🔊 השמעה אוטומטית של המילה</label>
+        <input type="checkbox" id="autospeakToggle" checked />
+      </div>
 
       <button class="danger-btn" id="resetBtn">🔄 איפוס התקדמות</button>
     </div>
