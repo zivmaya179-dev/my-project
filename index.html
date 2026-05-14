@@ -495,7 +495,100 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Celebration */
+    /* Word list view */
+    body.list-mode .stage { perspective: none; }
+    .word-list {
+      width: 100%;
+      max-height: 65vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 12px 1fr 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .row + .row { border-top: 1px solid #f1f5f9; }
+    .row:active { background: #f8fafc; }
+    .row-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .row-dot.green { background: #10b981; }
+    .row-dot.amber { background: #f59e0b; }
+    .row-dot.gray { background: #cbd5e1; }
+    .row-en {
+      font-weight: 700;
+      direction: ltr;
+      text-align: left;
+      color: var(--text);
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .row-he {
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .row-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 6px;
+    }
+    .row-tag.no { background: #fee2e2; color: var(--danger); }
+
+    /* Save indicator dot */
+    .save-dot {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 300;
+    }
+    .save-dot.show { opacity: 1; }
+
+    /* File input hidden, label as button */
+    input[type="file"] { display: none; }
+
+    .row-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .secondary-btn {
+      background: #f1f5f9;
+      color: var(--text);
+      border: 1px solid #e2e8f0;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: center;
+      display: block;
+      width: 100%;
+    }
     .celebrate {
       position: fixed;
       inset: 0;
@@ -514,10 +607,14 @@
   </style>
 </head>
 <body>
+  <div class="save-dot" id="saveDot" title="נשמר"></div>
   <div class="app">
     <header>
       <h1>📚 לני <small id="bandLabel">Band III</small></h1>
-      <button class="filter-pill" id="menuBtn">⚙️ הגדרות</button>
+      <div style="display:flex; gap:8px;">
+        <button class="ctrl-btn" id="viewModeBtn" style="width:38px; height:38px; font-size:16px;" title="רשימה">📋</button>
+        <button class="filter-pill" id="menuBtn">⚙️ הגדרות</button>
+      </div>
     </header>
 
     <div class="stats">
@@ -559,6 +656,16 @@
       <div class="toggle-row">
         <label for="autospeakToggle">🔊 השמעה אוטומטית של המילה</label>
         <input type="checkbox" id="autospeakToggle" checked />
+      </div>
+
+      <h3>גיבוי ושחזור</h3>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.4;">
+        ההתקדמות נשמרת אוטומטית בדפדפן. כדאי להוריד גיבוי מדי פעם - אם הדפדפן מוחק נתונים אפשר לשחזר.
+      </p>
+      <div class="row-buttons">
+        <button class="secondary-btn" id="exportBtn">💾 הורד גיבוי</button>
+        <label for="importFile" class="secondary-btn">📥 שחזר מגיבוי</label>
+        <input type="file" id="importFile" accept="application/json,.json" />
       </div>
 
       <button class="danger-btn" id="resetBtn">🔄 איפוס התקדמות</button>

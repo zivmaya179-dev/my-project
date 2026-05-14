@@ -3,8 +3,10 @@
 // ===================================================================
 
 const STORAGE_KEY = 'leni-vocab-v2';
+const DB_NAME = 'leni-vocab-db';
+const DB_VERSION = 1;
+const STORE = 'state';
 
-// Default band filter — Band III is most critical for 4-point bagrut
 const BAND_ORDER = ['Pre-Band I', 'Band I.1', 'Band I.2', 'Band II.1', 'Band II.2',
                     'Band III - A', 'Band III - B', 'Band III - C', 'Band III - D'];
 const DEFAULT_BAND = 'Band III - A';
@@ -16,28 +18,121 @@ const state = {
   deck: [],
   index: 0,
   flipped: false,
-  autospeak: true
+  autospeak: true,
+  viewMode: 'cards'
 };
 
-try {
-  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  state.progress = saved.progress || {};
-  state.filter = saved.filter || 'all';
-  state.band = saved.band || DEFAULT_BAND;
-  if (typeof saved.autospeak === 'boolean') state.autospeak = saved.autospeak;
-} catch (e) {
-  state.progress = {};
+// =================================================================
+// Storage layer: localStorage (sync) + IndexedDB (durable backup)
+// Both are written on every save. On load we take whichever is newer.
+// =================================================================
+function openDB() {
+  return new Promise((resolve, reject) => {
+    if (!('indexedDB' in window)) return reject(new Error('No IndexedDB'));
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = () => {
+      if (!req.result.objectStoreNames.contains(STORE)) {
+        req.result.createObjectStore(STORE);
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
 }
 
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+async function dbGet(key) {
+  try {
+    const db = await openDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(STORE, 'readonly');
+      const req = tx.objectStore(STORE).get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  } catch (e) { return null; }
+}
+
+async function dbSet(key, value) {
+  try {
+    const db = await openDB();
+    return await new Promise((resolve) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).put(value, key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    });
+  } catch (e) {}
+}
+
+function lsGet() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) { return null; }
+}
+function lsSet(v) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(v)); } catch (e) {}
+}
+
+function snapshot() {
+  return {
     progress: state.progress,
     filter: state.filter,
     band: state.band,
-    autospeak: state.autospeak
-  }));
+    autospeak: state.autospeak,
+    viewMode: state.viewMode,
+    savedAt: Date.now()
+  };
 }
 
+function applySnapshot(s) {
+  if (!s || typeof s !== 'object') return;
+  if (s.progress && typeof s.progress === 'object') state.progress = s.progress;
+  if (typeof s.filter === 'string') state.filter = s.filter;
+  if (typeof s.band === 'string') state.band = s.band;
+  if (typeof s.autospeak === 'boolean') state.autospeak = s.autospeak;
+  if (s.viewMode === 'list' || s.viewMode === 'cards') state.viewMode = s.viewMode;
+}
+
+let saveTimer = null;
+function save() {
+  const data = snapshot();
+  lsSet(data);
+  // debounce IndexedDB write to avoid spamming on rapid actions
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { dbSet('state', data); }, 200);
+  flashSaved();
+}
+
+// Initial load: take whichever store has the newer savedAt
+async function loadInitial() {
+  const ls = lsGet();
+  const idb = await dbGet('state');
+  let best = null;
+  if (ls && idb) {
+    best = (idb.savedAt || 0) > (ls.savedAt || 0) ? idb : ls;
+  } else {
+    best = idb || ls;
+  }
+  // Migrate from old v1 key if present and no v2 data
+  if (!best) {
+    try {
+      const old = JSON.parse(localStorage.getItem('leni-vocab-v1') || 'null');
+      if (old && old.progress) best = { progress: old.progress };
+    } catch (e) {}
+  }
+  applySnapshot(best);
+}
+
+let savedFlashTimer = null;
+function flashSaved() {
+  const el = document.getElementById('saveDot');
+  if (!el) return;
+  el.classList.add('show');
+  clearTimeout(savedFlashTimer);
+  savedFlashTimer = setTimeout(() => el.classList.remove('show'), 800);
+}
+
+// =================================================================
+// Word key + status
+// =================================================================
 function wordKey(w) {
   return (w.en + '|' + (w.def_en || '')).toLowerCase();
 }
@@ -49,19 +144,33 @@ function getStatus(word) {
   return 'learning';
 }
 
+function isUnknown(word) {
+  const p = state.progress[wordKey(word)];
+  return !!(p && p.last_action === 'no');
+}
+
 function getBands() {
   const set = new Set();
   WORDS.forEach(w => { if (w.band) set.add(w.band); });
   return BAND_ORDER.filter(b => set.has(b));
 }
 
+// =================================================================
+// Deck building (band + filter)
+// =================================================================
 function buildDeck() {
   let words = WORDS.slice();
   if (state.band !== 'all') {
     words = words.filter(w => w.band === state.band);
   }
-  if (state.filter !== 'all') {
-    words = words.filter(w => getStatus(w) === state.filter);
+  if (state.filter === 'new') {
+    words = words.filter(w => getStatus(w) === 'new');
+  } else if (state.filter === 'learning') {
+    words = words.filter(w => getStatus(w) === 'learning');
+  } else if (state.filter === 'learned') {
+    words = words.filter(w => getStatus(w) === 'learned');
+  } else if (state.filter === 'unknown') {
+    words = words.filter(w => isUnknown(w));
   }
   state.deck = words;
   state.index = 0;
@@ -75,12 +184,13 @@ function getCurrentScopeWords() {
 
 function updateStats() {
   const scope = getCurrentScopeWords();
-  let nNew = 0, nLearning = 0, nLearned = 0;
+  let nNew = 0, nLearning = 0, nLearned = 0, nUnknown = 0;
   scope.forEach(w => {
     const s = getStatus(w);
     if (s === 'new') nNew++;
     else if (s === 'learning') nLearning++;
     else nLearned++;
+    if (isUnknown(w)) nUnknown++;
   });
   document.getElementById('statTotal').textContent = scope.length;
   document.getElementById('statNew').textContent = nNew;
@@ -89,12 +199,61 @@ function updateStats() {
   const pct = scope.length ? Math.round((nLearned / scope.length) * 100) : 0;
   document.getElementById('progressBar').style.width = pct + '%';
   document.getElementById('bandLabel').textContent = state.band === 'all' ? 'הכל' : state.band;
+  // Store unknown count for modal use
+  state.unknownCount = nUnknown;
 }
 
 function escapeHtml(s) {
   if (s == null) return '';
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// =================================================================
+// Rendering — cards mode + list mode
+// =================================================================
+function render() {
+  document.body.classList.toggle('list-mode', state.viewMode === 'list');
+  if (state.viewMode === 'list') {
+    renderList();
+  } else {
+    renderCard();
+  }
+}
+
+function renderList() {
+  const stage = document.getElementById('stage');
+  document.getElementById('actions').style.display = 'none';
+  const counter = document.getElementById('counter');
+  counter.textContent = `${state.deck.length} מילים`;
+
+  if (!state.deck.length) {
+    stage.innerHTML = `
+      <div class="empty">
+        <div class="emoji">📋</div>
+        <h2>אין מילים להצגה</h2>
+        <p>נסי לבחור סינון אחר.</p>
+        <button onclick="setFilter('all')">הצג את כל המילים</button>
+      </div>
+    `;
+    return;
+  }
+
+  const items = state.deck.map((w, i) => {
+    const status = getStatus(w);
+    const dot = status === 'learned' ? 'green' : status === 'learning' ? 'amber' : 'gray';
+    const unknownTag = isUnknown(w) ? '<span class="row-tag no">לא ידעתי</span>' : '';
+    return `
+      <div class="row" onclick="speak('${escapeHtml(w.en).replace(/'/g,"\\'")}')">
+        <div class="row-dot ${dot}"></div>
+        <div class="row-en">${escapeHtml(w.en)}</div>
+        <div class="row-he">${escapeHtml(w.he || '')}</div>
+        ${unknownTag}
+      </div>
+    `;
+  }).join('');
+
+  stage.innerHTML = `<div class="word-list">${items}</div>`;
 }
 
 function renderCard() {
@@ -139,10 +298,7 @@ function renderCard() {
   const posBadge = word.pos ? `<div class="badge pos-badge">${escapeHtml(word.pos)}</div>` : '';
   const recProd = word.rec_prod ? `<div class="rp-badge ${word.rec_prod === 'Prod' ? 'prod' : 'rec'}">${word.rec_prod === 'Prod' ? 'P' : 'R'}</div>` : '';
 
-  // Front: English word + (optional) PoS + definition hint
   const defHint = word.def_en ? `<div class="def-hint">💡 ${escapeHtml(word.def_en)}</div>` : '';
-
-  // Back: Hebrew + English word small + def + family + PoS info
   const familyHtml = word.family ? `<div class="family-info"><span class="label">מילים קרובות:</span> <span class="value">${escapeHtml(word.family)}${word.family_pos ? ' <em>('+escapeHtml(word.family_pos)+')</em>' : ''}</span></div>` : '';
   const defHtml = word.def_en ? `<div class="def-info"><span class="label">EN:</span> <span class="value">${escapeHtml(word.def_en)}</span></div>` : '';
   const posHtml = word.pos ? `<div class="pos-info"><span class="label">סוג:</span> <span class="value">${escapeHtml(word.pos)}</span></div>` : '';
@@ -180,7 +336,6 @@ function renderCard() {
     flipCard();
   });
 
-  // Swipe support
   let startX = 0, startY = 0, moving = false;
   card.addEventListener('touchstart', e => {
     startX = e.touches[0].clientX;
@@ -213,11 +368,14 @@ function flipCard() {
 }
 
 function handleAction(action) {
+  if (state.viewMode !== 'cards') return;
   if (state.index >= state.deck.length) return;
   const word = state.deck[state.index];
   const key = wordKey(word);
   if (!state.progress[key]) state.progress[key] = { score: 0, seen: 0 };
   state.progress[key].seen++;
+  state.progress[key].last_action = action;
+  state.progress[key].last_at = Date.now();
 
   const card = document.getElementById('card');
 
@@ -238,7 +396,7 @@ function handleAction(action) {
     state.index++;
     state.flipped = false;
     updateStats();
-    renderCard();
+    render();
   }, 350);
 }
 
@@ -249,7 +407,7 @@ function shuffle() {
   }
   state.index = 0;
   state.flipped = false;
-  renderCard();
+  render();
   toast('ערבבתי! 🔀');
 }
 
@@ -261,7 +419,7 @@ function restartDeck() {
 function setFilter(filter) {
   state.filter = filter;
   buildDeck();
-  shuffle();
+  if (state.viewMode === 'cards') shuffle(); else render();
   save();
   closeModal();
   renderFilterList();
@@ -271,16 +429,39 @@ function setFilter(filter) {
 function setBand(band) {
   state.band = band;
   buildDeck();
-  shuffle();
+  if (state.viewMode === 'cards') shuffle(); else render();
   save();
   closeModal();
   renderBandList();
   updateStats();
 }
 
+function setViewMode(mode) {
+  state.viewMode = mode;
+  save();
+  updateViewModeUI();
+  render();
+}
+
+function toggleViewMode() {
+  setViewMode(state.viewMode === 'cards' ? 'list' : 'cards');
+}
+
+function updateViewModeUI() {
+  const btn = document.getElementById('viewModeBtn');
+  if (state.viewMode === 'list') {
+    btn.textContent = '🎴';
+    btn.title = 'מעבר לכרטיסיות';
+  } else {
+    btn.textContent = '📋';
+    btn.title = 'מעבר לרשימה';
+  }
+}
+
 function countByFilter(filter) {
   let words = getCurrentScopeWords();
   if (filter === 'all') return words.length;
+  if (filter === 'unknown') return words.filter(w => isUnknown(w)).length;
   return words.filter(w => getStatus(w) === filter).length;
 }
 
@@ -292,6 +473,7 @@ function countByBand(band) {
 function renderFilterList() {
   const filters = [
     { id: 'all', label: 'כל המילים', sub: 'תרגלי הכל' },
+    { id: 'unknown', label: '⚠️ סימנתי "לא ידעתי"', sub: 'מילים שטעיתי בהן' },
     { id: 'new', label: 'מילים חדשות', sub: 'עוד לא נראו' },
     { id: 'learning', label: 'בלימוד', sub: 'צריך עוד תרגול' },
     { id: 'learned', label: 'ידועות', sub: 'עברו בהצלחה' }
@@ -305,18 +487,10 @@ function renderFilterList() {
 }
 
 function bandRecommendation(band) {
-  if (band === 'Band III - A' || band === 'Band III - B' || band === 'Band III - C' || band === 'Band III - D') {
-    return 'רמה גבוהה - חשוב ל-4 יחידות';
-  }
-  if (band === 'Band II.1' || band === 'Band II.2') {
-    return 'רמת ביניים';
-  }
-  if (band === 'Band I.1' || band === 'Band I.2') {
-    return 'רמה בסיסית';
-  }
-  if (band === 'Pre-Band I') {
-    return 'מילים יסודיות';
-  }
+  if (band && band.startsWith('Band III')) return 'רמה גבוהה - חשוב ל-4 יחידות';
+  if (band === 'Band II.1' || band === 'Band II.2') return 'רמת ביניים';
+  if (band === 'Band I.1' || band === 'Band I.2') return 'רמה בסיסית';
+  if (band === 'Pre-Band I') return 'מילים יסודיות';
   return '';
 }
 
@@ -389,36 +563,102 @@ function resetProgress() {
   save();
   buildDeck();
   updateStats();
-  renderCard();
+  render();
   closeModal();
   toast('התקדמות אופסה ✨');
 }
 
+// =================================================================
+// Backup / Restore — download JSON, import JSON
+// =================================================================
+function exportProgress() {
+  const data = snapshot();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `leni-vocab-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('הגיבוי הורד 💾');
+}
+
+function importProgressFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || typeof data !== 'object' || !data.progress) {
+        alert('הקובץ לא תקין - חסר שדה progress');
+        return;
+      }
+      const n = Object.keys(data.progress).length;
+      if (!confirm(`לייבא ${n} מילים מהגיבוי? זה ידרוס את ההתקדמות הנוכחית.`)) return;
+      applySnapshot(data);
+      save();
+      buildDeck();
+      updateStats();
+      render();
+      closeModal();
+      toast(`שוחזר! ${n} מילים ✨`);
+    } catch (err) {
+      alert('שגיאה בקריאת הקובץ: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// =================================================================
 // Init
-document.getElementById('menuBtn').addEventListener('click', openModal);
-document.getElementById('closeBtn').addEventListener('click', closeModal);
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target.id === 'modal') closeModal();
-});
-document.getElementById('resetBtn').addEventListener('click', resetProgress);
-document.getElementById('shuffleBtn').addEventListener('click', shuffle);
-document.getElementById('flipBtn').addEventListener('click', flipCard);
-document.getElementById('autospeakToggle').addEventListener('change', e => {
-  state.autospeak = e.target.checked;
-  save();
-});
-document.querySelectorAll('.btn[data-action]').forEach(btn => {
-  btn.addEventListener('click', () => handleAction(btn.dataset.action));
-});
+// =================================================================
+async function init() {
+  await loadInitial();
+  buildDeck();
+  shuffle();
+  updateStats();
+  updateViewModeUI();
 
-document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'INPUT') return;
-  if (e.key === ' ') { e.preventDefault(); flipCard(); }
-  else if (e.key === 'ArrowRight' || e.key === '1') handleAction('no');
-  else if (e.key === 'ArrowLeft' || e.key === '3') handleAction('yes');
-  else if (e.key === 'ArrowDown' || e.key === '2') handleAction('skip');
-});
+  document.getElementById('menuBtn').addEventListener('click', openModal);
+  document.getElementById('closeBtn').addEventListener('click', closeModal);
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target.id === 'modal') closeModal();
+  });
+  document.getElementById('resetBtn').addEventListener('click', resetProgress);
+  document.getElementById('shuffleBtn').addEventListener('click', shuffle);
+  document.getElementById('flipBtn').addEventListener('click', flipCard);
+  document.getElementById('viewModeBtn').addEventListener('click', toggleViewMode);
+  document.getElementById('autospeakToggle').addEventListener('change', e => {
+    state.autospeak = e.target.checked;
+    save();
+  });
+  document.getElementById('exportBtn').addEventListener('click', exportProgress);
+  document.getElementById('importFile').addEventListener('change', e => {
+    if (e.target.files[0]) importProgressFromFile(e.target.files[0]);
+  });
+  document.querySelectorAll('.btn[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => handleAction(btn.dataset.action));
+  });
 
-buildDeck();
-shuffle();
-updateStats();
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === ' ') { e.preventDefault(); flipCard(); }
+    else if (e.key === 'ArrowRight' || e.key === '1') handleAction('no');
+    else if (e.key === 'ArrowLeft' || e.key === '3') handleAction('yes');
+    else if (e.key === 'ArrowDown' || e.key === '2') handleAction('skip');
+  });
+
+  // Save when tab is hidden (most reliable trigger across browsers)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      lsSet(snapshot());
+      dbSet('state', snapshot());
+    }
+  });
+  window.addEventListener('pagehide', () => {
+    lsSet(snapshot());
+    dbSet('state', snapshot());
+  });
+}
+
+init();
