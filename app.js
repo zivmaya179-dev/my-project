@@ -581,29 +581,17 @@ function setViewMode(mode) {
 }
 
 function toggleViewMode() {
-  // cycle: cards -> list -> quiz -> cards
+  // legacy cycle (no longer used by UI but kept for keyboard shortcut)
   const next = state.viewMode === 'cards' ? 'list'
              : state.viewMode === 'list' ? 'quiz'
              : 'cards';
   setViewMode(next);
-  if (next === 'quiz' || next === 'cards') {
-    state.index = 0;
-  }
-  toast(next === 'cards' ? 'כרטיסיות 🎴' : next === 'list' ? 'רשימה 📋' : 'מבחן אמריקאי 🎯');
 }
 
 function updateViewModeUI() {
-  const btn = document.getElementById('viewModeBtn');
-  if (state.viewMode === 'cards') {
-    btn.textContent = '🎴';
-    btn.title = 'כרטיסיות (לחצי למצב הבא)';
-  } else if (state.viewMode === 'list') {
-    btn.textContent = '📋';
-    btn.title = 'רשימה (לחצי למצב הבא)';
-  } else {
-    btn.textContent = '🎯';
-    btn.title = 'מבחן אמריקאי (לחצי למצב הבא)';
-  }
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === state.viewMode);
+  });
 }
 
 function countByFilter(filter) {
@@ -775,7 +763,15 @@ async function init() {
   document.getElementById('resetBtn').addEventListener('click', resetProgress);
   document.getElementById('shuffleBtn').addEventListener('click', shuffle);
   document.getElementById('flipBtn').addEventListener('click', flipCard);
-  document.getElementById('viewModeBtn').addEventListener('click', toggleViewMode);
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      if (mode === state.viewMode) return;
+      state.index = 0;
+      setViewMode(mode);
+      toast(mode === 'cards' ? 'כרטיסיות 🎴' : mode === 'list' ? 'רשימה 📋' : 'מבחן אמריקאי 🎯');
+    });
+  });
   document.getElementById('autospeakToggle').addEventListener('change', e => {
     state.autospeak = e.target.checked;
     save();
