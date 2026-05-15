@@ -88,7 +88,7 @@ function applySnapshot(s) {
   if (typeof s.filter === 'string') state.filter = s.filter;
   if (typeof s.band === 'string') state.band = s.band;
   if (typeof s.autospeak === 'boolean') state.autospeak = s.autospeak;
-  if (s.viewMode === 'list' || s.viewMode === 'cards') state.viewMode = s.viewMode;
+  if (s.viewMode === 'list' || s.viewMode === 'cards' || s.viewMode === 'quiz') state.viewMode = s.viewMode;
 }
 
 let saveTimer = null;
@@ -214,8 +214,11 @@ function escapeHtml(s) {
 // =================================================================
 function render() {
   document.body.classList.toggle('list-mode', state.viewMode === 'list');
+  document.body.classList.toggle('quiz-mode', state.viewMode === 'quiz');
   if (state.viewMode === 'list') {
     renderList();
+  } else if (state.viewMode === 'quiz') {
+    renderQuiz();
   } else {
     renderCard();
   }
@@ -254,6 +257,140 @@ function renderList() {
   }).join('');
 
   stage.innerHTML = `<div class="word-list">${items}</div>`;
+}
+
+// =================================================================
+// Quiz mode — multiple choice (English -> 4 Hebrew options)
+// =================================================================
+function pickDistractors(correct, count) {
+  // Prefer wrong answers from the same band, fall back to any band
+  const sameBand = WORDS.filter(w => w.band === correct.band && w.he && w.he !== correct.he);
+  const pool = sameBand.length >= count * 3 ? sameBand : WORDS.filter(w => w.he && w.he !== correct.he);
+  const picked = [];
+  const usedHe = new Set([correct.he]);
+  let tries = 0;
+  while (picked.length < count && tries < pool.length * 3) {
+    const w = pool[Math.floor(Math.random() * pool.length)];
+    if (!usedHe.has(w.he)) {
+      usedHe.add(w.he);
+      picked.push(w);
+    }
+    tries++;
+  }
+  return picked;
+}
+
+function renderQuiz() {
+  const stage = document.getElementById('stage');
+  const actions = document.getElementById('actions');
+  const counter = document.getElementById('counter');
+  actions.style.display = 'none';
+
+  // Filter to deck words that have a Hebrew translation
+  const quizable = state.deck.filter(w => w.he);
+
+  if (!quizable.length) {
+    counter.textContent = '0 / 0';
+    stage.innerHTML = `
+      <div class="empty">
+        <div class="emoji">🎯</div>
+        <h2>אין מילים למבחן</h2>
+        <p>נסי לבחור סינון אחר.</p>
+        <button onclick="setFilter('all')">הצג את כל המילים</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (state.index >= quizable.length) {
+    counter.textContent = `${quizable.length} / ${quizable.length}`;
+    celebrate();
+    stage.innerHTML = `
+      <div class="empty">
+        <div class="emoji">🏆</div>
+        <h2>סיימת את המבחן!</h2>
+        <p>עברת על ${quizable.length} מילים.</p>
+        <button onclick="restartDeck()">סבב חדש 🔄</button>
+      </div>
+    `;
+    return;
+  }
+
+  const word = quizable[state.index];
+  counter.textContent = `${state.index + 1} / ${quizable.length}`;
+
+  const distractors = pickDistractors(word, 3);
+  const options = [word, ...distractors];
+  // Shuffle options
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+
+  const optionsHtml = options.map((o, idx) => `
+    <button class="quiz-option" data-correct="${o.he === word.he ? '1' : '0'}" data-idx="${idx}">
+      <span class="opt-letter">${['א','ב','ג','ד'][idx]}</span>
+      <span class="opt-text">${escapeHtml(o.he)}</span>
+    </button>
+  `).join('');
+
+  const bandBadge = word.band ? `<div class="badge">${escapeHtml(word.band)}</div>` : '';
+  const posBadge = word.pos ? `<span class="pos-inline">${escapeHtml(word.pos)}</span>` : '';
+
+  stage.innerHTML = `
+    <div class="quiz-card">
+      ${bandBadge}
+      <button class="speaker" id="quizSpeaker" aria-label="השמע">🔊</button>
+      <div class="quiz-label">איך אומרים בעברית?</div>
+      <div class="quiz-word">${escapeHtml(word.en)}${posBadge}</div>
+      <div class="quiz-options">${optionsHtml}</div>
+    </div>
+  `;
+
+  document.getElementById('quizSpeaker').addEventListener('click', e => { e.stopPropagation(); speak(word.en); });
+
+  document.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.addEventListener('click', () => handleQuizAnswer(btn, word));
+  });
+
+  if (state.autospeak) {
+    setTimeout(() => speak(word.en, true), 200);
+  }
+}
+
+function handleQuizAnswer(btn, word) {
+  // Already answered?
+  if (btn.closest('.quiz-card').dataset.answered) return;
+  btn.closest('.quiz-card').dataset.answered = '1';
+
+  const isCorrect = btn.dataset.correct === '1';
+  const key = wordKey(word);
+  if (!state.progress[key]) state.progress[key] = { score: 0, seen: 0 };
+  state.progress[key].seen++;
+  state.progress[key].last_at = Date.now();
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    state.progress[key].score = Math.min(5, state.progress[key].score + 1);
+    state.progress[key].last_action = 'yes';
+    toast('נכון! 🎯');
+  } else {
+    btn.classList.add('wrong');
+    state.progress[key].score = Math.max(0, state.progress[key].score - 1);
+    state.progress[key].last_action = 'no';
+    // Highlight the correct option
+    document.querySelectorAll('.quiz-option').forEach(b => {
+      if (b.dataset.correct === '1') b.classList.add('correct');
+    });
+    toast('כמעט - נחזור על זה 💪');
+  }
+
+  save();
+  setTimeout(() => {
+    state.index++;
+    updateStats();
+    render();
+  }, isCorrect ? 700 : 1500);
 }
 
 function renderCard() {
@@ -444,17 +581,28 @@ function setViewMode(mode) {
 }
 
 function toggleViewMode() {
-  setViewMode(state.viewMode === 'cards' ? 'list' : 'cards');
+  // cycle: cards -> list -> quiz -> cards
+  const next = state.viewMode === 'cards' ? 'list'
+             : state.viewMode === 'list' ? 'quiz'
+             : 'cards';
+  setViewMode(next);
+  if (next === 'quiz' || next === 'cards') {
+    state.index = 0;
+  }
+  toast(next === 'cards' ? 'כרטיסיות 🎴' : next === 'list' ? 'רשימה 📋' : 'מבחן אמריקאי 🎯');
 }
 
 function updateViewModeUI() {
   const btn = document.getElementById('viewModeBtn');
-  if (state.viewMode === 'list') {
+  if (state.viewMode === 'cards') {
     btn.textContent = '🎴';
-    btn.title = 'מעבר לכרטיסיות';
-  } else {
+    btn.title = 'כרטיסיות (לחצי למצב הבא)';
+  } else if (state.viewMode === 'list') {
     btn.textContent = '📋';
-    btn.title = 'מעבר לרשימה';
+    btn.title = 'רשימה (לחצי למצב הבא)';
+  } else {
+    btn.textContent = '🎯';
+    btn.title = 'מבחן אמריקאי (לחצי למצב הבא)';
   }
 }
 
