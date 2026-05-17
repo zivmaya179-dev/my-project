@@ -451,6 +451,56 @@
       margin-right: 8px;
     }
     .option.active .option-count { background: rgba(255,255,255,0.25); }
+
+    /* Band multi-select */
+    .band-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 4px 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .band-summary { font-size: 12px; color: var(--muted); }
+    .band-summary strong { color: var(--text); }
+    .band-quick { display: flex; gap: 6px; }
+    .chip {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: var(--text);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .chip.active {
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      color: white;
+      border-color: transparent;
+    }
+    .band-option {
+      cursor: pointer;
+      gap: 10px;
+    }
+    .band-option input[type="checkbox"] {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      accent-color: var(--bg-1);
+      cursor: pointer;
+      margin: 0;
+    }
+    .band-option.active {
+      background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1)) !important;
+      color: var(--text);
+    }
+    .band-option.active small { color: var(--muted); }
+    .band-option.active .option-count {
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      color: white;
+    }
     .toggle-row {
       display: flex;
       justify-content: space-between;

@@ -14,7 +14,7 @@ const DEFAULT_BAND = 'Band III - A';
 const state = {
   progress: {},
   filter: 'all',
-  band: DEFAULT_BAND,
+  bands: [DEFAULT_BAND],
   deck: [],
   index: 0,
   flipped: false,
@@ -75,7 +75,7 @@ function snapshot() {
   return {
     progress: state.progress,
     filter: state.filter,
-    band: state.band,
+    bands: state.bands,
     autospeak: state.autospeak,
     viewMode: state.viewMode,
     savedAt: Date.now()
@@ -86,7 +86,13 @@ function applySnapshot(s) {
   if (!s || typeof s !== 'object') return;
   if (s.progress && typeof s.progress === 'object') state.progress = s.progress;
   if (typeof s.filter === 'string') state.filter = s.filter;
-  if (typeof s.band === 'string') state.band = s.band;
+  // bands: new multi-select; migrate from legacy single-string s.band
+  if (Array.isArray(s.bands) && s.bands.length) {
+    state.bands = s.bands.filter(b => typeof b === 'string');
+    if (!state.bands.length) state.bands = [DEFAULT_BAND];
+  } else if (typeof s.band === 'string') {
+    state.bands = s.band === 'all' ? getBands() : [s.band];
+  }
   if (typeof s.autospeak === 'boolean') state.autospeak = s.autospeak;
   if (s.viewMode === 'list' || s.viewMode === 'cards' || s.viewMode === 'quiz') state.viewMode = s.viewMode;
 }
@@ -159,10 +165,8 @@ function getBands() {
 // Deck building (band + filter)
 // =================================================================
 function buildDeck() {
-  let words = WORDS.slice();
-  if (state.band !== 'all') {
-    words = words.filter(w => w.band === state.band);
-  }
+  const bandSet = new Set(state.bands);
+  let words = WORDS.filter(w => bandSet.has(w.band));
   if (state.filter === 'new') {
     words = words.filter(w => getStatus(w) === 'new');
   } else if (state.filter === 'learning') {
@@ -178,8 +182,20 @@ function buildDeck() {
 }
 
 function getCurrentScopeWords() {
-  if (state.band === 'all') return WORDS;
-  return WORDS.filter(w => w.band === state.band);
+  const bandSet = new Set(state.bands);
+  return WORDS.filter(w => bandSet.has(w.band));
+}
+
+function bandLabelText() {
+  const allBands = getBands();
+  if (state.bands.length === allBands.length) return 'הכל';
+  if (state.bands.length === 1) return state.bands[0];
+  if (state.bands.length === 0) return 'לא נבחר';
+  // Show short form: if all selected are Band III - X, say "Band III ×N"
+  const prefix = state.bands[0].split(' - ')[0];
+  const allSamePrefix = state.bands.every(b => b.split(' - ')[0] === prefix);
+  if (allSamePrefix) return `${prefix} × ${state.bands.length}`;
+  return `${state.bands.length} רמות`;
 }
 
 function updateStats() {
@@ -198,7 +214,7 @@ function updateStats() {
   document.getElementById('statLearned').textContent = nLearned;
   const pct = scope.length ? Math.round((nLearned / scope.length) * 100) : 0;
   document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('bandLabel').textContent = state.band === 'all' ? 'הכל' : state.band;
+  document.getElementById('bandLabel').textContent = bandLabelText();
   // Store unknown count for modal use
   state.unknownCount = nUnknown;
 }
@@ -563,12 +579,30 @@ function setFilter(filter) {
   updateStats();
 }
 
-function setBand(band) {
-  state.band = band;
+function toggleBand(band) {
+  const i = state.bands.indexOf(band);
+  if (i >= 0) {
+    if (state.bands.length === 1) return; // don't allow zero bands
+    state.bands.splice(i, 1);
+  } else {
+    state.bands.push(band);
+  }
   buildDeck();
   if (state.viewMode === 'cards') shuffle(); else render();
   save();
-  closeModal();
+  renderBandList();
+  updateStats();
+}
+
+function setAllBands(selectAll) {
+  if (selectAll) {
+    state.bands = getBands();
+  } else {
+    state.bands = [DEFAULT_BAND];
+  }
+  buildDeck();
+  if (state.viewMode === 'cards') shuffle(); else render();
+  save();
   renderBandList();
   updateStats();
 }
@@ -602,7 +636,6 @@ function countByFilter(filter) {
 }
 
 function countByBand(band) {
-  if (band === 'all') return WORDS.length;
   return WORDS.filter(w => w.band === band).length;
 }
 
@@ -631,17 +664,30 @@ function bandRecommendation(band) {
 }
 
 function renderBandList() {
-  const bands = ['all', ...getBands()];
-  document.getElementById('bandList').innerHTML = bands.map(b => {
-    const label = b === 'all' ? 'כל ה-Bands' : b;
-    const sub = b === 'all' ? '4251 מילים בסך הכל' : bandRecommendation(b);
-    return `
-      <div class="option ${state.band === b ? 'active' : ''}" onclick="setBand('${b}')">
-        <div class="option-info"><strong>${label}</strong><small>${sub}</small></div>
-        <div class="option-count">${countByBand(b)}</div>
+  const bands = getBands();
+  const selected = new Set(state.bands);
+  const totalSelected = state.bands.reduce((sum, b) => sum + countByBand(b), 0);
+  const allBandsCount = bands.length;
+  const isAll = selected.size === allBandsCount;
+  const header = `
+    <div class="band-actions">
+      <span class="band-summary">נבחרו: <strong>${state.bands.length}/${allBandsCount}</strong> · ${totalSelected} מילים</span>
+      <div class="band-quick">
+        <button class="chip" onclick="setAllBands(false)">ברירת מחדל</button>
+        <button class="chip ${isAll ? 'active' : ''}" onclick="setAllBands(true)">הכל</button>
       </div>
+    </div>`;
+  const rows = bands.map(b => {
+    const checked = selected.has(b);
+    return `
+      <label class="option band-option ${checked ? 'active' : ''}">
+        <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleBand('${b}')"/>
+        <div class="option-info"><strong>${b}</strong><small>${bandRecommendation(b)}</small></div>
+        <div class="option-count">${countByBand(b)}</div>
+      </label>
     `;
   }).join('');
+  document.getElementById('bandList').innerHTML = header + rows;
 }
 
 function openModal() {
