@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <title>מבחן Band III - לני 🎯</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --bg-1: #0ea5e9;
+      --bg-2: #6366f1;
+      --bg-3: #ec4899;
+      --text: #0f172a;
+      --muted: #64748b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius: 18px;
+      --shadow: 0 20px 60px -10px rgba(14, 165, 233, 0.4);
+    }
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Heebo", "Assistant", sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 12px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+    header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    header h1 small {
+      font-size: 11px;
+      font-weight: 700;
+      opacity: 0.9;
+      background: rgba(255,255,255,0.2);
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-right: 4px;
+    }
+    .pill {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .pill:active { transform: scale(0.95); }
+    .home-link {
+      color: white;
+      opacity: 0.85;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      color: white;
+    }
+    .stat {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 14px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+    .stat .num { font-size: 22px; font-weight: 800; line-height: 1; }
+    .stat .label { font-size: 11px; opacity: 0.9; margin-top: 4px; }
+
+    .progress-wrap {
+      height: 7px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      width: 0%;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stage {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 380px;
+    }
+    .quiz-card {
+      width: 100%;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 18px 18px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .quiz-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--bg-1), var(--bg-3));
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .badge {
+      align-self: flex-start;
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
+      direction: ltr;
+    }
+    .desc-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .desc-text {
+      font-size: clamp(17px, 4.8vw, 22px);
+      font-weight: 600;
+      line-height: 1.45;
+      color: var(--text);
+      direction: ltr;
+      text-align: left;
+      padding: 14px;
+      background: linear-gradient(135deg, #f0f9ff, #fef3f9);
+      border-radius: 12px;
+      border-right: 4px solid var(--bg-1);
+      min-height: 80px;
+    }
+    .pos-tag {
+      display: inline-block;
+      background: #e0e7ff;
+      color: var(--bg-2);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: 6px;
+      vertical-align: middle;
+      direction: ltr;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      direction: ltr;
+      color: var(--text);
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .opt:active { transform: scale(0.98); }
+    .opt-letter {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--muted);
+      direction: ltr;
+    }
+    .opt-text { flex: 1; word-break: break-word; }
+    .opt-speaker {
+      flex-shrink: 0;
+      background: transparent;
+      border: none;
+      font-size: 16px;
+      padding: 4px 8px;
+      cursor: pointer;
+      opacity: 0.5;
+    }
+    .opt.correct {
+      background: #d1fae5;
+      border-color: #10b981;
+      color: #065f46;
+      animation: pulse 0.4s;
+    }
+    .opt.correct .opt-letter {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+    }
+    .opt.wrong {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #991b1b;
+      animation: shake 0.4s;
+    }
+    .opt.wrong .opt-letter {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: white;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .reveal {
+      margin-top: 4px;
+      padding: 10px 12px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--text);
+      display: none;
+    }
+    .reveal.show { display: block; }
+    .reveal strong { color: var(--bg-1); direction: ltr; }
+    .reveal .he { color: var(--muted); margin-right: 8px; }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      font-size: 13px;
+    }
+    .ctrl-btn {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ctrl-btn:active { transform: scale(0.92); }
+    .counter { font-weight: 700; }
+
+    .empty {
+      background: rgba(255,255,255,0.95);
+      border-radius: var(--radius);
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      width: 100%;
+    }
+    .empty .emoji { font-size: 56px; margin-bottom: 12px; }
+    .empty h2 { font-size: 21px; margin-bottom: 8px; }
+    .empty p { color: var(--muted); margin-bottom: 18px; font-size: 14px; line-height: 1.5; }
+    .empty button {
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal.open { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      max-width: 380px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+    .modal h2 {
+      font-size: 19px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal h3 {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 14px 0 6px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .modal .close {
+      background: #f1f5f9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .modal-instr {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 0 4px 8px;
+      line-height: 1.4;
+    }
+    .pick {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: right;
+    }
+    .pick.on {
+      background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(99,102,241,0.12));
+      border-color: var(--bg-1);
+    }
+    .pick-check {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      border: 2px solid #cbd5e1;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: transparent;
+      font-size: 14px;
+    }
+    .pick.on .pick-check {
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      border-color: transparent;
+      color: white;
+    }
+    .pick-info { flex: 1; font-size: 14px; font-weight: 700; }
+    .pick-num {
+      background: #e2e8f0;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .pick.on .pick-num {
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      color: white;
+    }
+    .chip-row { display: flex; gap: 6px; margin-bottom: 10px; }
+    .chip {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .danger-btn {
+      width: 100%;
+      background: #fef2f2;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+      padding: 11px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      font-family: inherit;
+    }
+    .toast {
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%) translateY(40px);
+      background: rgba(15, 23, 42, 0.95);
+      color: white;
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.25s;
+      z-index: 200;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .save-dot {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 4px rgba(16,185,129,0.25);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 300;
+    }
+    .save-dot.show { opacity: 1; }
+    .celebrate { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+    .confetti {
+      position: absolute;
+      width: 10px; height: 10px;
+      animation: fall 2.5s ease-out forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="save-dot" id="saveDot"></div>
+  <div class="app">
+    <header>
+      <h1>🎯 מבחן Band III <small id="listsLabel">A·B·C·D</small></h1>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <a href="../index.html" class="home-link" title="חזרה לכרטיסיות">🏠</a>
+        <button class="pill" id="menuBtn">⚙️</button>
+      </div>
+    </header>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="statTotal">0</div><div class="label">סה"כ</div></div>
+      <div class="stat"><div class="num" id="statRight">0</div><div class="label">נכון ✓</div></div>
+      <div class="stat"><div class="num" id="statWrong">0</div><div class="label">טעות ✗</div></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+    <div class="stage" id="stage"></div>
+
+    <div class="controls">
+      <button class="ctrl-btn" id="shuffleBtn" title="ערבב">🔀</button>
+      <div class="counter" id="counter">0 / 0</div>
+      <button class="ctrl-btn" id="skipBtn" title="דלג">⏭️</button>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2>הגדרות <button class="close" id="closeBtn">✕</button></h2>
+
+      <h3>בחירת רשימות</h3>
+      <div class="modal-instr">סמני אילו רשימות להכניס למבחן (אפשר כמה)</div>
+      <div class="chip-row">
+        <button class="chip" onclick="setAllLists(true)">סמני הכל</button>
+        <button class="chip" onclick="setAllLists(false)">רק A</button>
+      </div>
+      <div id="listsPicker"></div>
+
+      <h3>סינון</h3>
+      <div id="filterPicker"></div>
+
+      <button class="danger-btn" id="resetBtn">🔄 איפוס תוצאות</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="celebrate" id="celebrate"></div>
+
+  <script src="words.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
