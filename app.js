@@ -670,21 +670,25 @@ function renderBandList() {
   const allBandsCount = bands.length;
   const isAll = selected.size === allBandsCount;
   const header = `
+    <div class="band-instr">סמני כמה רמות שתרצי - לני תתאמן על כולן יחד</div>
     <div class="band-actions">
-      <span class="band-summary">נבחרו: <strong>${state.bands.length}/${allBandsCount}</strong> · ${totalSelected} מילים</span>
+      <span class="band-summary"><strong>${state.bands.length}</strong> רמות · <strong>${totalSelected}</strong> מילים</span>
       <div class="band-quick">
-        <button class="chip" onclick="setAllBands(false)">ברירת מחדל</button>
-        <button class="chip ${isAll ? 'active' : ''}" onclick="setAllBands(true)">הכל</button>
+        <button class="chip" onclick="setAllBands(false)">רמה אחת</button>
+        <button class="chip ${isAll ? 'active' : ''}" onclick="setAllBands(true)">סמני הכל</button>
       </div>
     </div>`;
   const rows = bands.map(b => {
     const checked = selected.has(b);
     return `
-      <label class="option band-option ${checked ? 'active' : ''}">
-        <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleBand('${b}')"/>
-        <div class="option-info"><strong>${b}</strong><small>${bandRecommendation(b)}</small></div>
-        <div class="option-count">${countByBand(b)}</div>
-      </label>
+      <button class="band-pick ${checked ? 'on' : ''}" onclick="toggleBand('${b}')">
+        <span class="band-check">${checked ? '✓' : ''}</span>
+        <span class="band-info">
+          <span class="band-name">${b}</span>
+          <span class="band-sub">${bandRecommendation(b)}</span>
+        </span>
+        <span class="band-num">${countByBand(b)}</span>
+      </button>
     `;
   }).join('');
   document.getElementById('bandList').innerHTML = header + rows;
