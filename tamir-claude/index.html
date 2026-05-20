@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#1a0f2e" />
+<title>קלוד לתמיר - מסע ב-10 דקות</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg-1: #1a0f2e;
+    --bg-2: #2d1b4e;
+    --bg-3: #d97757;
+    --card: rgba(255,255,255,0.97);
+    --text: #1a0f2e;
+    --text-light: #5b4f6e;
+    --accent: #d97757;
+    --accent-2: #8b5cf6;
+    --accent-3: #06b6d4;
+    --good: #10b981;
+    --bad: #ef4444;
+    --shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Heebo", "Assistant", "Rubik", sans-serif;
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, #4a2862 100%);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 50%, #4a2862 100%) fixed;
+  }
+  /* Floating background blobs */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.45;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .blob.b1 { width: 350px; height: 350px; background: #d97757; top: -100px; right: -100px; animation: float1 18s ease-in-out infinite; }
+  .blob.b2 { width: 300px; height: 300px; background: #8b5cf6; bottom: -80px; left: -80px; animation: float2 22s ease-in-out infinite; }
+  .blob.b3 { width: 250px; height: 250px; background: #06b6d4; top: 40%; left: 30%; animation: float3 26s ease-in-out infinite; opacity: 0.25; }
+  @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,60px)} }
+  @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(50px,-40px)} }
+  @keyframes float3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,30px) scale(1.1)} }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 14px 18px;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  /* Progress */
+  .progress {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    align-items: center;
+  }
+  .dot {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .dot.done { background: var(--accent); }
+  .dot.active::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: var(--accent);
+    transform-origin: right;
+    animation: fillBar 0.6s ease forwards;
+  }
+  @keyframes fillBar { from { transform: scaleX(0);} to { transform: scaleX(1);} }
+  .step-label {
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    margin-right: 8px;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  /* Card */
+  .card {
+    flex: 1;
+    background: var(--card);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    padding: 24px 22px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+  }
+  .card::-webkit-scrollbar { width: 0; }
+  .screen { animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h1 { font-size: 26px; line-height: 1.2; margin-bottom: 10px; font-weight: 800; }
+  h2 { font-size: 22px; line-height: 1.25; margin-bottom: 12px; font-weight: 800; }
+  h3 { font-size: 17px; line-height: 1.3; margin-bottom: 8px; font-weight: 700; }
+  p { font-size: 15.5px; line-height: 1.65; color: var(--text-light); margin-bottom: 12px; }
+  p strong { color: var(--text); font-weight: 700; }
+  .emoji-big { font-size: 56px; line-height: 1; display: block; margin: 4px 0 14px; }
+
+  /* Buttons */
+  .nav {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+  .btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, var(--accent) 0%, #c95f3d 100%);
+    color: white;
+    padding: 14px 20px;
+    font-size: 16px;
+    box-shadow: 0 4px 14px rgba(217,119,87,0.4);
+  }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-secondary {
+    background: #f0ecf5;
+    color: var(--text);
+    padding: 14px 18px;
+    font-size: 15px;
+  }
+  .btn-secondary:active { background: #e4ddef; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-light);
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  /* Surface cards (chapter 2) */
+  .surfaces {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 8px 0 12px;
+  }
+  .surface {
+    background: linear-gradient(135deg, #faf6f2 0%, #f0ecf5 100%);
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 14px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .surface:active, .surface.active {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, #fff5ed 0%, #ffe8d6 100%);
+    transform: translateY(-2px);
+  }
+  .surface-emoji { font-size: 32px; display: block; margin-bottom: 6px; }
+  .surface-name { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+  .surface-sub { font-size: 11.5px; color: var(--text-light); }
+  .surface-detail {
+    background: #faf6f2;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    border-right: 3px solid var(--accent);
+    animation: slideIn 0.3s ease;
+  }
+  .surface-detail strong { color: var(--accent); }
+
+  /* Chat bubble demo */
+  .chat {
+    background: #faf6f2;
+    border-radius: 16px;
+    padding: 14px;
+    margin: 8px 0 12px;
+  }
+  .msg {
+    padding: 10px 14px;
+    border-radius: 16px;
+    margin-bottom: 8px;
+    max-width: 88%;
+    font-size: 14px;
+    line-height: 1.5;
+    animation: pop 0.3s ease;
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .msg-user {
+    background: var(--accent);
+    color: white;
+    margin-right: auto;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-bot {
+    background: white;
+    color: var(--text);
+    margin-left: auto;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .typing-dots { display: inline-flex; gap: 3px; align-items: center; padding: 4px 0; }
+  .typing-dots span {
+    width: 6px; height: 6px; background: var(--text-light); border-radius: 50%;
+    animation: blink 1.4s infinite both;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.3; }
+    40% { opacity: 1; }
+  }
+
+  /* Prompt picker */
+  .prompt-card {
+    background: #faf6f2;
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .prompt-card:active { transform: scale(0.98); }
+  .prompt-card.correct {
+    border-color: var(--good);
+    background: #ecfdf5;
+  }
+  .prompt-card.wrong {
+    border-color: var(--bad);
+    background: #fef2f2;
+    opacity: 0.7;
+  }
+  .prompt-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .feedback {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    animation: pop 0.3s ease;
+  }
+  .feedback.good { background: #ecfdf5; color: #065f46; border-right: 3px solid var(--good); }
+  .feedback.bad  { background: #fef2f2; color: #991b1b; border-right: 3px solid var(--bad); }
+
+  /* Agent visualization */
+  .agent-viz {
+    background: #faf6f2;
+    border-radius: 16px;
+    padding: 20px 14px;
+    margin: 10px 0 12px;
+    text-align: center;
+  }
+  .agent-main {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent) 0%, #c95f3d 100%);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(217,119,87,0.3);
+  }
+  .agent-arrows {
+    height: 30px;
+    margin: 6px 0;
+    position: relative;
+  }
+  .agent-arrows::before {
+    content: "↓ ↓ ↓";
+    color: var(--accent-2);
+    font-size: 22px;
+    letter-spacing: 18px;
+    margin-right: 18px;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+  .subagents {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .subagent {
+    background: white;
+    border: 2px solid var(--accent-2);
+    color: var(--accent-2);
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    animation: pop 0.4s ease;
+  }
+
+  /* Tip list */
+  .tip {
+    background: #faf6f2;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tip:active { transform: scale(0.99); }
+  .tip-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tip-body { flex: 1; }
+  .tip-title { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+  .tip-text { font-size: 13px; color: var(--text-light); line-height: 1.5; }
+
+  /* Quiz */
+  .q-option {
+    background: #faf6f2;
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14.5px;
+    transition: all 0.2s;
+    text-align: right;
+    width: 100%;
+    font-family: inherit;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .q-option:active { transform: scale(0.98); }
+  .q-option:hover:not(.locked) { background: #f0ecf5; }
+  .q-option.correct {
+    border-color: var(--good);
+    background: #ecfdf5;
+    color: #065f46;
+    font-weight: 700;
+  }
+  .q-option.wrong {
+    border-color: var(--bad);
+    background: #fef2f2;
+    color: #991b1b;
+  }
+  .q-option.locked { cursor: default; }
+
+  .score-big {
+    font-size: 64px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  /* Final share */
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .link-pill {
+    background: #faf6f2;
+    color: var(--text);
+    padding: 12px 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #ece5f0;
+    transition: all 0.2s;
+  }
+  .link-pill:active { background: #f0ecf5; }
+
+  .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+  .pill {
+    background: #f0ecf5;
+    color: var(--accent-2);
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .callout {
+    background: linear-gradient(135deg, #fff5ed 0%, #ffe8d6 100%);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 10px 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text);
+    border-right: 3px solid var(--accent);
+  }
+  .callout strong { color: var(--accent); }
+
+  .footer-tiny {
+    text-align: center;
+    color: rgba(255,255,255,0.45);
+    font-size: 11px;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <div class="app">
+    <div class="progress" id="progress"></div>
+    <div class="card" id="card"></div>
+    <div class="footer-tiny">עשוי באהבה ע״י זיו ✨ עם קצת עזרה מ-Claude</div>
+  </div>
+
+<script>
+const TOTAL = 9;
+let step = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const screens = [
+  // 0 - WELCOME
+  {
+    title: "התחלה",
+    render: () => `
+      <div class="screen" style="margin:auto 0;">
+        <span class="emoji-big">👋🤖</span>
+        <h1>תמיר, היי!</h1>
+        <p>זיו בנתה לך מסע קצר (10 דקות) שיהפוך אותך ממישהו שלא ממש מכיר את עולם ה-AI - למישהו שמבין את <strong>קלוד</strong> ויודע איך להשתמש בו חכם.</p>
+        <p>בלי הרצאות. הרבה דוגמאות. קצת הומור. נושאים כמו <strong>הצ׳אט, האפליקציה, קלוד קוד, פרומפטים, סוכנים</strong> וכל הקסם שמאחורי.</p>
+        <div class="callout">💡 <strong>טיפ:</strong> תקרא בקצב שלך. אפשר תמיד לחזור אחורה.</div>
+        <div class="nav">
+          <button class="btn-primary" onclick="next()">יאללה, מתחילים →</button>
+        </div>
+      </div>
+    `
+  },
+
+  // 1 - WHAT IS CLAUDE
+  {
+    title: "מה זה?",
+    render: () => `
+      <div class="screen">
+        <span class="emoji-big">🧠</span>
+        <h2>אז... מה זה Claude?</h2>
+        <p><strong>Claude</strong> זה AI - בינה מלאכותית - שאיתה אפשר לדבר. כמו ChatGPT, אבל מבית חברה אחרת בשם <strong>Anthropic</strong>.</p>
+        <p>הוא יודע לכתוב, להסביר, לתכנת, לסכם, לחשוב יחד איתך - בכל שפה, גם בעברית.</p>
+        <div class="chat">
+          <div class="msg msg-user">תמיר: ״תסביר לי בלי בולשיט מה זה AI״</div>
+          <div class="msg msg-bot" id="bot1" style="display:none;">קלוד: ״תוכנה שמנחשת מה המילה הבאה הכי הגיונית - רק שהיא מנחשת ממש ממש טוב, אז זה מרגיש שיש שם מישהו שמבין.״</div>
+          <div class="msg msg-bot" id="bot1-typing"><span class="typing-dots"><span></span><span></span><span></span></span></div>
+        </div>
+        <div class="callout">🎓 <strong>השם</strong> Claude הוא על שם <strong>קלוד שאנון</strong> - האבא של תורת המידע. גיק־פאן.</div>
+        <div class="nav">
+          <button class="btn-secondary" onclick="prev()">→</button>
+          <button class="btn-primary" onclick="next()">הלאה</button>
+        </div>
+      </div>
+    `,
+    onMount: () => {
+      setTimeout(() => {
+        const t = document.getElementById('bot1-typing');
+        const b = document.getElementById('bot1');
+        if (t) t.style.display = 'none';
+        if (b) b.style.display = 'block';
+      }, 1400);
+    }
+  },
+
+  // 2 - SURFACES
+  {
+    title: "איפה",
+    render: () => `
+      <div class="screen">
+        <span class="emoji-big">🪟</span>
+        <h2>איפה פוגשים אותו?</h2>
+        <p>קלוד גר בכמה מקומות. <strong>תקתק עליהם</strong> כדי להבין מה כל אחד עושה:</p>
+        <div class="surfaces">
+          <div class="surface" data-key="web">
+            <span class="surface-emoji">🌐</span>
+            <div class="surface-name">claude.ai</div>
+            <div class="surface-sub">בדפדפן</div>
+          </div>
+          <div class="surface" data-key="desktop">
+            <span class="surface-emoji">💻</span>
+            <div class="surface-name">Claude Desktop</div>
+            <div class="surface-sub">אפליקציה למחשב</div>
+          </div>
+          <div class="surface" data-key="mobile">
+            <span class="surface-emoji">📱</span>
+            <div class="surface-name">אפליקציית הסלולר</div>
+            <div class="surface-sub">iOS / Android</div>
+          </div>
+          <div class="surface" data-key="code">
+            <span class="surface-emoji">⌨️</span>
+            <div class="surface-name">Claude Code</div>
+            <div class="surface-sub">לתכנתים</div>
+          </div>
+        </div>
+        <div id="surfaceDetail"></div>
+        <div class="nav">
+          <button class="btn-secondary" onclick="prev()">→</button>
+          <button class="btn-primary" onclick="next()">הלאה</button>
+        </div>
+      </div>
+    `,
+    onMount: () => {
+      const details = {
+        web: "<strong>claude.ai</strong> - הצ׳אט הרגיל בדפדפן. נכנסים, מתחברים, מתחילים לדבר. הכי קל להתחיל מפה.",
+        desktop: "<strong>Claude Desktop</strong> - אפליקציה למק/חלונות. אותו צ׳אט, אבל היא יודעת גם להתחבר לקבצים שלך, ל-Gmail, ל-Google Drive ולעוד עשרות שירותים (דרך משהו שנקרא MCP - תכף).",
+        mobile: "<strong>בסלולר</strong> - לדבר עם קלוד בקול תוך כדי הליכה. מקליטים שאלה, הוא עונה. גם הקלדה רגילה כמובן.",
+        code: "<strong>Claude Code</strong> - הכלי לתכנתים. עובד בטרמינל וגם דרך VS Code. במקום לדבר על קוד - אומרים לו לכתוב/לתקן/להריץ והוא <strong>פשוט עושה את זה</strong> על הקבצים שלך. זה מטורף."
+      };
+      document.querySelectorAll('.surface').forEach(el => {
+        el.addEventListener('click', () => {
+          document.querySelectorAll('.surface').forEach(s => s.classList.remove('active'));
+          el.classList.add('active');
+          document.getElementById('surfaceDetail').innerHTML =
+            `<div class="surface-detail">${details[el.dataset.key]}</div>`;
+        });
+      });
+    }
+  },
+
+  // 3 - PROMPTS
+  {
+    title: "פרומפט",
+    render: () => `
+      <div class="screen">
+        <span class="emoji-big">🎯</span>
+        <h2>איך לדבר איתו טוב</h2>
+        <p>הכלל הכי חשוב: <strong>תהיה ספציפי</strong>. תגיד מה אתה רוצה, למי, באיזה אורך, באיזה טון. דוגמה - שתי אופציות:</p>
+        <p style="font-size:13px;margin-bottom:8px;">לחץ על הפרומפט שיביא תשובה יותר טובה ⬇</p>
+        <div class="prompt-card" data-correct="0" onclick="pickPrompt(this, 0)">
+          <div class="prompt-label">אפשרות א׳</div>
+          ״תכתוב לי מייל לבוס.״
+        </div>
+        <div class="prompt-card" data-correct="1" onclick="pickPrompt(this, 1)">
+          <div class="prompt-label">אפשרות ב׳</div>
+          ״תכתוב מייל לבוס שלי, מנכ״ל החברה, שבו אני מבקש 3 ימי חופש ברצף בסוף החודש. טון מקצועי אבל לא נוקשה, 4 שורות, עברית.״
+        </div>
+        <div id="promptFeedback"></div>
+        <div class="nav">
+          <button class="btn-secondary" onclick="prev()">→</button>
+          <button class="btn-primary" onclick="next()">הלאה</button>
+        </div>
+      </div>
+    `
+  },
+
+  // 4 - CONTEXT
+  {
+    title: "זיכרון",
+    render: () => `
+      <div class="screen">
+        <span class="emoji-big">🪟</span>
+        <h2>הזיכרון של השיחה</h2>
+        <p>קלוד <strong>זוכר את כל מה שכתבת בשיחה הנוכחית</strong> - אבל רק שם. שיחה חדשה = התחלה נקייה, בלי זיכרון.</p>
+        <p>לכל שיחה יש <strong>״חלון״ זיכרון</strong> (Context) - הוא ענק (מאות עמודי טקסט), אבל לא אינסופי.</p>
+        <div class="callout">📌 <strong>כלל אצבע:</strong>
+          <br>• שיחה חדשה לכל נושא חדש (אחרת הוא ״מתבלבל״ מההיסטוריה).
+          <br>• שיחה שמתארכת מאוד - תפתח חדשה, תעתיק את הסיכום.
+        </div>
+        <div class="pill-row">
+          <span class="pill">200K טוקנים</span>
+          <span class="pill">≈ 500 עמודים</span>
+          <span class="pill">חלון הקשר</span>
+        </div>
+        <p style="font-size:13px;">💡 ב-Claude Code יש פקודה <strong>/clear</strong> שמנקה את הזיכרון בלי לפתוח שיחה חדשה.</p>
+        <div class="nav">
+          <button class="btn-secondary" onclick="prev()">→</button>
+          <button class="btn-primary" onclick="next()">הלאה</button>
+        </div>
+      </div>
+    `
+  },
+
+  // 5 - AGENTS
+  {
+    title: "סוכנים",
+    render: () => `
+      <div class="screen">
+        <span class="emoji-big">🕵️</span>
+        <h2>סוכנים (Agents)</h2>
+        <p><strong>סוכן</strong> זה לא סתם צ׳אט - זה AI ש<strong>גם פועל</strong>. הוא יכול לחפש קבצים, להריץ קוד, לפתוח אתרים, לשלוח מיילים. לא רק לענות - גם <em>לעשות</em>.</p>
+        <p>קלוד יכול גם לפצל משימה גדולה לכמה ״תת-סוכנים״ שעובדים <strong>במקביל</strong> - כל אחד על חתיכה שלו. אחר כך הוא מאחד הכל לתשובה אחת.</p>
+        <div class="agent-viz">
+          <div class="agent-main">🤖 קלוד הראשי</div>
+          <div class="agent-arrows"></div>
+          <div class="subagents">
+            <div class="subagent">🔍 חוקר</div>
+            <div class="subagent">📝 כותב</div>
+            <div class="subagent">✅ בודק</div>
+          </div>
+        </div>
+        <div class="callout">🎬 דוגמה: ביקשת ״תכין לי דו״ח על 3 חברות מתחרות״. במקום לעשות הכל לבד, הוא שולח שלושה תת-סוכנים - כל אחד חוקר חברה אחת בו-זמנית.</div>
+        <div class="nav">
+          <button class="btn-secondary" onclick="prev()">→</button>
+          <button class="btn-primary" onclick="next()">הלאה</button>
+        </div>
+      </div>
+    `
+  },
+
+  // 6 - SKILLS + MCP
+  {
+    title: "כישורים",
+    render: () => `
+      <div class="screen">
+        <span class="emoji-big">🎒</span>
+        <h2>Skills ו-MCP</h2>
+        <h3 style="margin-top:6px;">🧰 Skills - כישורים</h3>
+        <p>״סקיל״ זה <strong>הוראות מוכנות מראש</strong> שקלוד טוען כשהוא צריך. כמו ספר מתכונים שהשף פותח רק כשמזמינים פיצה.</p>
+        <p style="font-size:13.5px;">דוגמאות: סקיל ל<strong>סקירת קוד</strong>, סקיל לבנות <strong>מצגות PowerPoint</strong>, סקיל ל<strong>אבטחת מידע</strong>. אתה מתקין פעם אחת - קלוד יודע מתי להפעיל.</p>
+        <h3 style="margin-top:14px;">🔌 MCP - חיבורים</h3>
+        <p>MCP זה ה״USB של ה-AI״ - תקן שמחבר את קלוד <strong>לשירותים אחרים</strong>: Gmail, יומן, GitHub, Notion, הקבצים במחשב, ועוד מאות שירותים.</p>
+        <div class="callout">📨 דוגמה אמיתית: ״קלוד, תקרא את שלושת המיילים האחרונים מהמנהל שלי וסכם לי״. עם MCP של Gmail - הוא עושה את זה.</div>
+        <div class="nav">
+          <button class="btn-secondary" onclick="prev()">→</button>
+          <button class="btn-primary" onclick="next()">הלאה</button>
+        </div>
+      </div>
+    `
+  },
+
+  // 7 - TIPS
+  {
+    title: "טריקים",
+    render: () => `
+      <div class="screen">
+        <span class="emoji-big">💎</span>
+        <h2>5 טריקים שיעשו לך את החיים</h2>
+        <div class="tip"><div class="tip-icon">🎭</div><div class="tip-body"><div class="tip-title">תן לו תפקיד</div><div class="tip-text">״תהיה עו״ד שמסביר לסבתא״, ״תהיה דיאטנית״. זה משנה דרמטית את התשובה.</div></div></div>
+        <div class="tip"><div class="tip-icon">🧪</div><div class="tip-body"><div class="tip-title">תן דוגמה למה אתה רוצה</div><div class="tip-text">לפני בקשה, תראה לו דוגמה אחת או שתיים לסגנון שאתה רוצה - הוא יחקה.</div></div></div>
+        <div class="tip"><div class="tip-icon">🔁</div><div class="tip-body"><div class="tip-title">תבקש לתקן</div><div class="tip-text">תשובה ראשונה לא טובה? פשוט תגיד ״יותר קצר״, ״פחות פורמלי״, ״עברית פשוטה״. זה תהליך.</div></div></div>
+        <div class="tip"><div class="tip-icon">🧠</div><div class="tip-body"><div class="tip-title">בקש ממנו לחשוב לפני</div><div class="tip-text">״תחשוב צעד-צעד לפני שתענה״. עוזר במשימות מורכבות.</div></div></div>
+        <div class="tip"><div class="tip-icon">📸</div><div class="tip-body"><div class="tip-title">תשלח לו תמונה/PDF</div><div class="tip-text">קבלה, צילום מסך, מסמך, גרף - הוא קורא הכל. ואז שואלים שאלות עליו.</div></div></div>
+        <div class="nav">
+          <button class="btn-secondary" onclick="prev()">→</button>
+          <button class="btn-primary" onclick="next()">חידון קצר ←</button>
+        </div>
+      </div>
+    `
+  },
+
+  // 8 - QUIZ
+  {
+    title: "חידון",
+    render: () => {
+      const qs = quizQuestions();
+      return `
+      <div class="screen">
+        <span class="emoji-big">🎮</span>
+        <h2>חידון של דקה</h2>
+        <p style="font-size:13.5px;">${qs.length} שאלות. אל תיתפס לזה - זה רק כדי שתראה כמה כבר נכנס לך לראש.</p>
+        <div id="quizArea"></div>
+        <div id="quizDone" style="display:none;"></div>
+        <div class="nav">
+          <button class="btn-secondary" onclick="prev()">→</button>
+          <button class="btn-primary" id="quizNextBtn" onclick="next()" style="display:none;">סיום</button>
+        </div>
+      </div>
+      `;
+    },
+    onMount: () => renderQuiz()
+  },
+
+  // 9 - OUTRO
+  {
+    title: "סיום",
+    render: () => `
+      <div class="screen">
+        <span class="emoji-big">🎉</span>
+        <h1>זהו, סיימת!</h1>
+        <div class="score-big">${quizScore}/${quizQuestions().length}</div>
+        <p style="text-align:center;">${getScoreMessage()}</p>
+        <h3 style="margin-top:18px;">מה הלאה? קח את זה לסיבוב:</h3>
+        <div class="links">
+          <a class="link-pill" href="https://claude.ai" target="_blank">🌐 פתח את claude.ai עכשיו</a>
+          <a class="link-pill" href="https://claude.ai/download" target="_blank">💻 הורד את Claude Desktop</a>
+          <a class="link-pill" href="https://docs.claude.com" target="_blank">📚 התיעוד הרשמי (אנגלית)</a>
+        </div>
+        <div class="callout" style="margin-top:14px;">
+          🎁 <strong>משימת ראשונה לתמיר:</strong> תכנס ל-claude.ai, תגיד לו ״תהיה מורה פרטי שלי לעולם ה-AI״ - ותתחיל לשאול. ככה לומדים הכי טוב.
+        </div>
+        <div class="nav">
+          <button class="btn-secondary" onclick="restart()">↻ מההתחלה</button>
+          <button class="btn-primary" onclick="share()">📤 שתף לוואטסאפ</button>
+        </div>
+      </div>
+    `
+  }
+];
+
+function quizQuestions() {
+  return [
+    {
+      q: "מי בנה את קלוד?",
+      a: ["גוגל", "Anthropic", "OpenAI", "Meta"],
+      correct: 1,
+      hint: "החברה נקראת Anthropic - הוקמה ע״י חוקרי AI לשעבר ב-OpenAI."
+    },
+    {
+      q: "מה זה ״סוכן״ (Agent)?",
+      a: ["AI שרק עונה לשאלות", "AI שגם פועל בעצמו - מריץ, חוקר, מבצע", "מסך הצ׳אט", "שם של מודל"],
+      correct: 1,
+      hint: "סוכן זה AI שלא רק עונה - גם עושה: קורא קבצים, מריץ דברים, חוקר."
+    },
+    {
+      q: "מתי הכי כדאי לפתוח שיחה חדשה?",
+      a: ["אף פעם - הוא יודע הכל", "כשהשיחה ארוכה מאוד או עוברים לנושא אחר", "פעם בשבוע", "רק כשהאתר נופל"],
+      correct: 1,
+      hint: "שיחה חדשה = ראש נקי. בלי בלבול מההיסטוריה."
+    },
+    {
+      q: "מה זה MCP?",
+      a: ["שם של מודל", "תקן שמחבר את קלוד לשירותים חיצוניים", "סוג של פרומפט", "האפליקציה למובייל"],
+      correct: 1,
+      hint: "MCP = ה״USB״ של ה-AI - מחבר אותו ל-Gmail, GitHub, יומן וכל מה שיש."
+    },
+    {
+      q: "מהו הטריק הכי חשוב לפרומפט טוב?",
+      a: ["לכתוב באנגלית", "להיות ספציפי - לתת הקשר, אורך, טון", "תמיד לכתוב באותיות גדולות", "להגיד ״בבקשה״"],
+      correct: 1,
+      hint: "ספציפיות = הזהב של פרומפט. למי, באיזה אורך, באיזה טון, בשביל מה."
+    }
+  ];
+}
+
+let currentQ = 0;
+function renderQuiz() {
+  const qs = quizQuestions();
+  if (currentQ >= qs.length) {
+    document.getElementById('quizArea').style.display = 'none';
+    document.getElementById('quizDone').style.display = 'block';
+    document.getElementById('quizDone').innerHTML = `
+      <div class="callout" style="text-align:center;">
+        <strong>סיימת את החידון!</strong><br>
+        ציון: ${quizScore}/${qs.length}<br>
+        ${quizScore === qs.length ? "🏆 מושלם!" : quizScore >= 3 ? "🎯 יפה מאוד!" : "💪 בפעם הבאה ניטיב!"}
+      </div>
+    `;
+    document.getElementById('quizNextBtn').style.display = 'block';
+    return;
+  }
+  const q = qs[currentQ];
+  document.getElementById('quizArea').innerHTML = `
+    <div style="margin-top:10px;">
+      <div style="font-size:12px;color:var(--text-light);margin-bottom:6px;">שאלה ${currentQ+1} מתוך ${qs.length}</div>
+      <h3 style="margin-bottom:12px;">${q.q}</h3>
+      ${q.a.map((opt, i) => `<button class="q-option" data-i="${i}">${opt}</button>`).join('')}
+      <div id="qFeedback"></div>
+    </div>
+  `;
+  document.querySelectorAll('.q-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('locked')) return;
+      const i = parseInt(btn.dataset.i);
+      document.querySelectorAll('.q-option').forEach(b => b.classList.add('locked'));
+      if (i === q.correct) {
+        btn.classList.add('correct');
+        quizScore++;
+      } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('.q-option')[q.correct].classList.add('correct');
+      }
+      document.getElementById('qFeedback').innerHTML = `
+        <div class="feedback ${i===q.correct?'good':'bad'}">
+          ${i===q.correct?'✅ נכון! ':'❌ לא בדיוק. '}${q.hint}
+          <div style="margin-top:10px;text-align:left;"><button class="btn-primary" style="padding:8px 14px;font-size:13px;" onclick="nextQ()">המשך ←</button></div>
+        </div>`;
+    });
+  });
+}
+function nextQ() { currentQ++; renderQuiz(); }
+
+function pickPrompt(el, idx) {
+  if (document.querySelector('.prompt-card.correct, .prompt-card.wrong')) return;
+  document.querySelectorAll('.prompt-card').forEach(c => c.classList.add('locked'));
+  if (idx === 1) {
+    el.classList.add('correct');
+    document.querySelector('.prompt-card[data-correct="0"]').classList.add('wrong');
+    document.getElementById('promptFeedback').innerHTML =
+      `<div class="feedback good">✅ נכון. אופציה ב׳ - היא נותנת לקלוד הכל: למי, על מה, כמה, באיזה טון, באיזה שפה. הוא יחזיר משהו שכמעט לא צריך לערוך.</div>`;
+  } else {
+    el.classList.add('wrong');
+    document.querySelector('.prompt-card[data-correct="1"]').classList.add('correct');
+    document.getElementById('promptFeedback').innerHTML =
+      `<div class="feedback bad">❌ אופציה א׳ מעורפלת - איזה בוס? באיזה נושא? באיזה טון? קלוד ינחש, ואתה תצטרך 4 סיבובי תיקון. אופציה ב׳ - הוא יודע בדיוק מה לעשות.</div>`;
+  }
+}
+
+function getScoreMessage() {
+  const total = quizQuestions().length;
+  if (quizScore === total) return "🔥 מלך. עברת בלי שגיאה. רשמית - אתה בעניינים.";
+  if (quizScore >= 4) return "💪 נהדר! אתה כבר יודע יותר מ-90% מהאוכלוסייה.";
+  if (quizScore >= 3) return "👌 לא רע בכלל! יש לך את היסודות.";
+  return "😊 זה בסדר - הפעם הראשונה תמיד הכי קשה. תחזור ותעבור שוב.";
+}
+
+function renderProgress() {
+  const p = document.getElementById('progress');
+  let html = `<div class="step-label">${step+1}/${TOTAL+1}</div>`;
+  for (let i = 0; i <= TOTAL; i++) {
+    html += `<div class="dot ${i < step ? 'done' : i === step ? 'active' : ''}"></div>`;
+  }
+  p.innerHTML = html;
+}
+
+function render() {
+  document.getElementById('card').innerHTML = screens[step].render();
+  renderProgress();
+  if (screens[step].onMount) screens[step].onMount();
+  document.getElementById('card').scrollTop = 0;
+}
+
+function next() {
+  if (step < screens.length - 1) {
+    step++;
+    render();
+  }
+}
+function prev() {
+  if (step > 0) {
+    step--;
+    render();
+  }
+}
+function restart() {
+  step = 0;
+  quizScore = 0;
+  currentQ = 0;
+  render();
+}
+function share() {
+  const url = window.location.href;
+  const text = `היי, תכין כוס קפה ושב 10 דקות - הכנתי לך מסע קצר על קלוד וכל עולם ה-AI:\n${url}`;
+  const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(wa, '_blank');
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') next();
+  else if (e.key === 'ArrowRight') prev();
+});
+
+render();
+</script>
+</body>
+</html>
