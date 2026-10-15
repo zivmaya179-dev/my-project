@@ -1,0 +1,68 @@
+name: Sentiro CI
+
+# The app has no test suite yet, so this is the floor: the code must lint
+# clean and Metro must be able to bundle it for both platforms. That catches
+# a broken import or a bad config before it reaches a phone.
+
+on:
+  pull_request:
+    paths:
+      - "sentiro/**"
+      - ".github/workflows/sentiro-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "sentiro/**"
+      - ".github/workflows/sentiro-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sentiro-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: sentiro
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: sentiro/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npx eslint .
+
+      - name: Bundle for iOS
+        run: npx expo export --platform ios --output-dir /tmp/export-ios
+
+      - name: Bundle for Android
+        run: npx expo export --platform android --output-dir /tmp/export-android
+
+      - name: Check the siren asset shipped
+        run: |
+          test -f assets/siren.wav
+          node -e "
+            const fs = require('fs');
+            const b = fs.readFileSync('assets/siren.wav');
+            if (b.toString('ascii', 0, 4) !== 'RIFF') throw new Error('siren.wav is not a RIFF file');
+            const declared = b.readUInt32LE(40);
+            if (declared !== b.length - 44) throw new Error('siren.wav header and data disagree');
+            console.log('siren.wav ok:', b.length, 'bytes');
+          "

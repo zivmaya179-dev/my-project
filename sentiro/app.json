@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Sentiro",
+    "slug": "sentiro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.sentiro.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "כדי לשלוח את המיקום שלך למעגל ברגע מצוקה, ולהתריע כשאת מגיעה או יוצאת ממקום שהגדרתם.",
+        "UIBackgroundModes": ["location", "audio"]
+      }
+    },
+    "android": {
+      "package": "com.sentiro.app",
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "VIBRATE"
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#E4EFED",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "react-native-maps",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "כדי לשלוח את המיקום שלך למעגל ברגע מצוקה, ולהתריע כשאת מגיעה או יוצאת ממקום שהגדרתם."
+        }
+      ]
+    ]
+  }
+}
