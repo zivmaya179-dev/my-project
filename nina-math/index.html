@@ -1,0 +1,612 @@
+<title>המרתון של נינה</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Secular+One&family=Heebo:wght@400;500;700&display=swap">
+<style>
+/* Layout: one column, phone first. Home = map of lessons; lesson = vertical scroll of "see it, name it, do it" cards. */
+:root{
+  --bg:#f4f8f6; --fg:#172220; --card:#ffffff; --line:#d5e0dc; --muted:#5d6f6a;
+  --accent:#0e7c73; --soft:#dff0ec; --coral:#e25a3d; --coral-soft:#fde6df;
+  --gold:#d9a400; --gold-soft:#fff4cc; --blue:#2a6fdb; --blue-soft:#e1ebfb;
+  --ok:#1f8a4c; --ok-soft:#dff5e6; --bad:#c43c2b; --bad-soft:#fbe3df;
+  --display:"Secular One","Heebo",system-ui,sans-serif;
+  --body:"Heebo",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f1716; --fg:#e7efec; --card:#172120; --line:#2b3a36; --muted:#9db1ab;
+  --accent:#5fd3c4; --soft:#1c2f2b; --coral:#ff8d70; --coral-soft:#3a241f;
+  --gold:#f2c94c; --gold-soft:#3a3214; --blue:#7fb0ff; --blue-soft:#1d2a3f;
+  --ok:#5cd48a; --ok-soft:#173224; --bad:#ff8a7a; --bad-soft:#3b1f1b; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0f1716; --fg:#e7efec; --card:#172120; --line:#2b3a36; --muted:#9db1ab;
+  --accent:#5fd3c4; --soft:#1c2f2b; --coral:#ff8d70; --coral-soft:#3a241f;
+  --gold:#f2c94c; --gold-soft:#3a3214; --blue:#7fb0ff; --blue-soft:#1d2a3f;
+  --ok:#5cd48a; --ok-soft:#173224; --bad:#ff8a7a; --bad-soft:#3b1f1b; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.55;direction:rtl;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:2rem}h2{font-size:1.5rem}h3{font-size:1.2rem}
+p{margin:0}
+.m{direction:ltr;unicode-bidi:isolate;display:inline-block;font-variant-numeric:tabular-nums;white-space:nowrap}
+.m sup{font-size:.7em}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:12px;padding-block:12px 10px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.top button{font:inherit;font-weight:500;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 14px;cursor:pointer}
+.top .crumb{color:var(--muted);font-size:.95rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top .spacer{flex:1}
+.hero{display:grid;gap:10px;margin-bottom:22px}
+.hero .kicker{font-size:.85rem;letter-spacing:.06em;color:var(--accent);font-weight:700}
+.hero p{color:var(--muted);max-width:60ch}
+.count{display:inline-flex;align-items:center;gap:8px;background:var(--gold-soft);color:var(--fg);border-radius:10px;padding:6px 12px;font-weight:500;width:max-content}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));margin-bottom:28px}
+.sect{display:flex;align-items:baseline;gap:10px;margin:8px 0 10px}
+.sect .tag{font-size:.8rem;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:6px;cursor:pointer;text-align:right;font:inherit;color:inherit;min-width:0}
+.card:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card .n{font-size:.78rem;color:var(--muted)}
+.card h3{font-size:1.1rem}
+.card .blurb{font-size:.92rem;color:var(--muted)}
+.bar{height:6px;background:var(--soft);border-radius:4px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:var(--accent);width:0}
+.card.main{border-color:var(--accent)}
+.card.test{background:var(--soft)}
+.lesson{display:grid;gap:16px}
+.block{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px;min-width:0}
+.block.explore{border-color:var(--accent)}
+.block.lead{background:transparent;border:0;padding:0}
+.block .eyebrow{font-size:.78rem;letter-spacing:.06em;font-weight:700;color:var(--accent)}
+.block.explore .eyebrow{color:var(--coral)}
+.block ul{margin:0;padding-inline-start:20px;display:grid;gap:4px}
+.block .tip{background:var(--gold-soft);border-radius:10px;padding:10px 12px;font-size:.95rem}
+.block .warn{background:var(--coral-soft);border-radius:10px;padding:10px 12px;font-size:.95rem}
+.block .rule{background:var(--soft);border-radius:10px;padding:10px 12px;font-weight:500}
+svg{max-width:100%;height:auto;display:block;touch-action:none;user-select:none;-webkit-user-select:none}
+.fig{width:100%;max-width:420px;margin:0 auto}
+.lbl{font-family:var(--body);font-size:15px;fill:var(--fg)}
+.lbl.sm{font-size:12px}
+.ln{stroke:var(--fg);stroke-width:2;fill:none;stroke-linecap:round}
+.ln.thin{stroke-width:1.2;stroke:var(--muted)}
+.ln.dash{stroke-dasharray:5 5;stroke:var(--muted);stroke-width:1.6}
+.handle{fill:var(--card);stroke:var(--accent);stroke-width:3;cursor:grab}
+.handle.coral{stroke:var(--coral)}
+.arc{fill:none;stroke-width:3}
+.c1{stroke:var(--coral)} .c2{stroke:var(--accent)} .c3{stroke:var(--blue)} .c4{stroke:var(--gold)}
+.f1{fill:var(--coral);opacity:.25} .f2{fill:var(--accent);opacity:.25} .f3{fill:var(--blue);opacity:.25} .f4{fill:var(--gold);opacity:.3}
+.readout{display:flex;flex-wrap:wrap;gap:8px;font-variant-numeric:tabular-nums}
+.chip{background:var(--soft);border-radius:999px;padding:4px 12px;font-weight:500}
+.chip.coral{background:var(--coral-soft)} .chip.blue{background:var(--blue-soft)} .chip.gold{background:var(--gold-soft)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:500;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 14px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn.sel{background:var(--soft);border-color:var(--accent)}
+.btn:disabled{opacity:.55;cursor:default}
+.q{border-right:4px solid var(--accent)}
+.q .stem{font-weight:500}
+.opts{display:grid;gap:8px}
+.opt{font:inherit;text-align:right;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.numin{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.numin input{font:inherit;font-size:1.1rem;width:120px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);direction:ltr;text-align:center}
+.fb{border-radius:10px;padding:10px 12px;font-size:.97rem}
+.fb.ok{background:var(--ok-soft)} .fb.no{background:var(--bad-soft)} .fb.hint{background:var(--gold-soft)}
+.sl{display:grid;gap:4px;font-size:.92rem}
+.sl input{width:100%;accent-color:var(--accent)}
+.tiles{display:grid;gap:8px}
+.tile{font:inherit;text-align:right;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px 12px;cursor:pointer;display:grid;gap:2px}
+.tile .r{font-size:.88rem;color:var(--muted)}
+.tile.used{opacity:.35;cursor:default}
+.seq{display:grid;gap:6px;background:var(--soft);border-radius:10px;padding:10px;min-height:48px}
+.seq .st{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;font-size:.97rem}
+.seq .st b{color:var(--accent)}
+.seq .st.bad{color:var(--bad)}
+.seq .empty{color:var(--muted);font-size:.9rem}
+.letters{display:flex;gap:8px}
+.letters .btn{font-size:1.2rem;min-width:52px;direction:ltr}
+.summary{display:grid;gap:10px}
+.summary .topic{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding-block:6px}
+.summary .topic .btn{padding:4px 10px;font-size:.9rem}
+.big{font-family:var(--display);font-size:2.4rem;color:var(--accent)}
+.foot{color:var(--muted);font-size:.85rem;margin-top:24px}
+@media (prefers-reduced-motion:no-preference){ .bar i{transition:width .4s} .opt,.tile{transition:background .15s} }
+</style>
+
+<div class="wrap">
+  <div class="top" id="top">
+    <button id="homeBtn" type="button">בית</button>
+    <span class="crumb" id="crumb"></span>
+    <span class="spacer"></span>
+    <button id="nextBtn" type="button" hidden>הבא</button>
+  </div>
+  <div id="view"></div>
+  <p class="foot">נבנה לפי דף הנושאים של המורה (מבחן אמצע מחצית א', ט'7), דפי התרגול בגאומטריה ובאלגברה, ועמודים 376 ו-379 בספר.</p>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const h = (tag, attrs={}, ...kids) => { const e=document.createElement(tag); for(const [k,v] of Object.entries(attrs)){ if(k==='class') e.className=v; else if(k==='html') e.innerHTML=v; else if(k.startsWith('on')) e.addEventListener(k.slice(2),v); else if(v!==false&&v!=null) e.setAttribute(k,v);} for(const k of kids.flat()){ if(k==null) continue; e.append(k.nodeType?k:document.createTextNode(k)); } return e; };
+const M = s => `<span class="m">${s}</span>`;
+const deg = v => `${Math.round(v)}°`;
+const rad = d => d*Math.PI/180;
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+let store={}; try{ store=JSON.parse(localStorage.getItem('nina-math')||'{}')||{}; }catch(e){ store={}; }
+const save=()=>{ try{ localStorage.setItem('nina-math',JSON.stringify(store)); }catch(e){} };
+store.q = store.q||{};
+
+/* svg helpers */
+const P=(x,y)=>`${x.toFixed(1)},${y.toFixed(1)}`;
+function arcPath(cx,cy,r,a0,a1){ // angles in degrees, math orientation (counter-clockwise, y up) drawn on screen y down
+  let d=a1-a0; while(d<0)d+=360; while(d>360)d-=360;
+  const x0=cx+r*Math.cos(rad(a0)), y0=cy-r*Math.sin(rad(a0)), x1=cx+r*Math.cos(rad(a1)), y1=cy-r*Math.sin(rad(a1));
+  return `M${P(x0,y0)} A${r} ${r} 0 ${d>180?1:0} 0 ${P(x1,y1)}`;
+}
+function wedgePath(cx,cy,r,a0,a1){ return arcPath(cx,cy,r,a0,a1)+` L${P(cx,cy)} Z`; }
+function arcLabel(cx,cy,r,a0,a1,txt,cls='lbl'){ let d=a1-a0; while(d<0)d+=360; const am=a0+d/2; return `<text class="${cls}" text-anchor="middle" dominant-baseline="middle" x="${(cx+r*Math.cos(rad(am))).toFixed(1)}" y="${(cy-r*Math.sin(rad(am))).toFixed(1)}">${txt}</text>`; }
+function line(x0,y0,x1,y1,cls='ln'){ return `<line class="${cls}" x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}"/>`; }
+function txt(x,y,s,cls='lbl',anchor='middle'){ return `<text class="${cls}" x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="middle">${s}</text>`; }
+function svg(w,hh,inner,extra=''){ return `<svg class="fig" viewBox="0 0 ${w} ${hh}" ${extra}>${inner}</svg>`; }
+function angBetween(cx,cy,ax,ay,bx,by){ const a=Math.atan2(cy-ay,ax-cx), b=Math.atan2(cy-by,bx-cx); let d=(b-a)*180/Math.PI; while(d<0)d+=360; while(d>=360)d-=360; return d; }
+function angOf(cx,cy,x,y){ return Math.atan2(cy-y,x-cx)*180/Math.PI; }
+function rightMark(cx,cy,ux,uy,vx,vy,s=12){ return `<path class="ln thin" d="M${P(cx+ux*s,cy+uy*s)} L${P(cx+ux*s+vx*s,cy+uy*s+vy*s)} L${P(cx+vx*s,cy+vy*s)}"/>`; }
+
+/* figure generators for questions */
+function figX(t,r,b,l,opts={}){ // two lines through center, labels in top/right/bottom/left regions
+  const cx=200,cy=110,a=opts.a||32,L=150;
+  const d=(ang)=>[cx+L*Math.cos(rad(ang)),cy-L*Math.sin(rad(ang))];
+  const [x1,y1]=d(a),[x2,y2]=d(a+180),[x3,y3]=d(180-a),[x4,y4]=d(360-a);
+  let s=line(x1,y1,x2,y2)+line(x3,y3,x4,y4);
+  const lab=(txtv,ang,rr,cls)=>txtv?txt(cx+rr*Math.cos(rad(ang)),cy-rr*Math.sin(rad(ang)),txtv,'lbl'):'';
+  s+=`<path class="arc c1" d="${arcPath(cx,cy,26,a,180-a)}"/>`+`<path class="arc c1" d="${arcPath(cx,cy,26,180+a,360-a)}"/>`;
+  s+=`<path class="arc c3" d="${arcPath(cx,cy,26,180-a,180+a)}"/>`+`<path class="arc c3" d="${arcPath(cx,cy,26,-a,a)}"/>`;
+  s+=lab(t,90,52)+lab(r,0,70)+lab(b,270,52)+lab(l,180,70);
+  return svg(400,220,s);
+}
+function figAdj(left,right,opts={}){ // ray from O on a line, angle th from the right side
+  const th=opts.th||62, cx=200,cy=150,L=170;
+  let s=line(30,cy,370,cy)+line(cx,cy,cx+L*Math.cos(rad(th)),cy-L*Math.sin(rad(th)));
+  s+=`<path class="arc c1" d="${arcPath(cx,cy,34,0,th)}"/><path class="arc c2" d="${arcPath(cx,cy,44,th,180)}"/>`;
+  s+=arcLabel(cx,cy,68,0,th,right)+arcLabel(cx,cy,78,th,180,left);
+  s+=txt(cx,cy+18,'O','lbl sm');
+  return svg(400,180,s);
+}
+function figTri(A,B,C,labels,opts={}){ // labels: {a,b,c} angle labels at A,B,C; opts.height draws height from A
+  const pts={A,B,C}; let s=`<path class="ln" d="M${P(...A)} L${P(...B)} L${P(...C)} Z"/>`;
+  const put=(V,U,W,lab,cls)=>{ const a0=angOf(V[0],V[1],U[0],U[1]), a1=angOf(V[0],V[1],W[0],W[1]); let d=a1-a0; while(d<0)d+=360; const [s0,s1]=d<=180?[a0,a1]:[a1,a0]; return `<path class="arc ${cls}" d="${arcPath(V[0],V[1],22,s0,s1)}"/>`+(lab?arcLabel(V[0],V[1],44,s0,s1,lab):''); };
+  if(labels.a!=null) s+=put(A,B,C,labels.a,'c1'); if(labels.b!=null) s+=put(B,C,A,labels.b,'c2'); if(labels.c!=null) s+=put(C,A,B,labels.c,'c3');
+  if(opts.names){ const o=opts.names; s+=txt(A[0],A[1]-14,o[0],'lbl sm')+txt(B[0]-12,B[1]+12,o[1],'lbl sm')+txt(C[0]+12,C[1]+12,o[2],'lbl sm'); }
+  if(opts.extra) s+=opts.extra;
+  return svg(opts.w||400,opts.h||230,s);
+}
+function figTriLine(al,be,ga,de,opts={}){ // triangle on a line, exterior angles gamma (left) and delta (right)
+  const B=[120,170],C=[280,170],A=[opts.ax||210,60]; let s=line(20,170,380,170)+`<path class="ln" d="M${P(...A)} L${P(...B)} L${P(...C)} Z"/>`;
+  const aB=angOf(B[0],B[1],A[0],A[1]), aC=angOf(C[0],C[1],A[0],A[1]);
+  s+=`<path class="arc c1" d="${arcPath(...B,24,0,aB)}"/>`+arcLabel(...B,46,0,aB,al);
+  s+=`<path class="arc c2" d="${arcPath(...B,32,aB,180)}"/>`+arcLabel(...B,56,aB,180,ga);
+  s+=`<path class="arc c1" d="${arcPath(...C,24,aC,180)}"/>`+arcLabel(...C,46,aC,180,be);
+  s+=`<path class="arc c2" d="${arcPath(...C,32,0,aC)}"/>`+arcLabel(...C,56,0,aC,de);
+  return svg(400,200,s);
+}
+function figRays(){ // ex 5: A-O-E line, rays OB, OC, OD
+  const O=[200,160]; const ray=(a,n)=>line(O[0],O[1],O[0]+150*Math.cos(rad(a)),O[1]-150*Math.sin(rad(a)))+txt(O[0]+165*Math.cos(rad(a)),O[1]-165*Math.sin(rad(a)),n,'lbl sm');
+  let s=line(20,160,380,160)+txt(20,178,'A','lbl sm')+txt(380,178,'E','lbl sm')+txt(200,178,'O','lbl sm');
+  s+=ray(36,'D')+ray(72,'C')+ray(126,'B');
+  s+=arcLabel(...O,40,0,36,'1','lbl sm')+arcLabel(...O,40,36,72,'2','lbl sm')+arcLabel(...O,40,72,126,'3','lbl sm')+arcLabel(...O,40,126,180,'4','lbl sm');
+  return svg(400,190,s);
+}
+function figThree(){ const O=[200,110]; const lines=[[80,'A','B'],[62,'C','D'],[165,'F','E']]; let s=''; for(const [a,n1,n2] of lines){ s+=line(O[0]+110*Math.cos(rad(a)),O[1]-110*Math.sin(rad(a)),O[0]-110*Math.cos(rad(a)),O[1]+110*Math.sin(rad(a))); s+=txt(O[0]+125*Math.cos(rad(a)),O[1]-125*Math.sin(rad(a)),n1,'lbl sm')+txt(O[0]-125*Math.cos(rad(a)),O[1]+125*Math.sin(rad(a)),n2,'lbl sm'); } s+=txt(212,122,'O','lbl sm'); return svg(400,220,s); }
+function figHeightChoice(){ const A=[130,50],B=[200,180],C=[370,180]; let s=line(30,180,380,180,'ln dash')+`<path class="ln" d="M${P(...A)} L${P(...B)} L${P(...C)} Z"/>`;
+  s+=line(A[0],A[1],A[0],180,'ln c1')+txt(A[0]-14,185,'1','lbl'); s+=line(A[0],A[1],285,180,'ln c2')+txt(285,196,'2','lbl'); s+=line(A[0],A[1],240,180,'ln c3')+txt(240,196,'3','lbl');
+  s+=txt(A[0],A[1]-14,'A','lbl sm')+txt(B[0]-4,196,'B','lbl sm')+txt(C[0]+10,196,'C','lbl sm'); return svg(400,210,s); }
+function figRect(w,hh,label,inner){ let s=`<rect x="60" y="30" width="${w}" height="${hh}" fill="var(--soft)" stroke="var(--fg)" stroke-width="2"/>`; s+=txt(60+w/2,18,label.w,'lbl')+txt(60+w+22,30+hh/2,label.h,'lbl'); if(inner){ s+=`<rect x="${inner.x}" y="${inner.y}" width="${inner.w}" height="${inner.h}" fill="var(--card)" stroke="var(--fg)" stroke-width="2"/>`+txt(inner.x+inner.w/2,inner.y+inner.h/2,inner.l,'lbl'); } return svg(400,hh+60,s); }
+
+/* ---------- interactive widgets ---------- */
+function dragSVG(svgEl, onMove){
+  let active=null;
+  const pt=e=>{ const p=svgEl.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; const m=svgEl.getScreenCTM(); if(!m) return null; const q=p.matrixTransform(m.inverse()); return [q.x,q.y]; };
+  svgEl.addEventListener('pointerdown',e=>{ const t=e.target.closest('[data-h]'); if(!t) return; active=t.dataset.h; svgEl.setPointerCapture(e.pointerId); e.preventDefault(); });
+  svgEl.addEventListener('pointermove',e=>{ if(!active) return; const p=pt(e); if(p) onMove(active,p[0],p[1]); });
+  const end=()=>{active=null;}; svgEl.addEventListener('pointerup',end); svgEl.addEventListener('pointercancel',end);
+}
+const widgets={};
+
+widgets.angleName=(root)=>{
+  const A=[70,60],B=[200,170],C=[350,120]; let seq=[];
+  const fig=h('div'); const out=h('div',{class:'readout'}); const btns=h('div',{class:'letters'});
+  const draw=()=>{ let s=line(...B,...A)+line(...B,...C)+`<path class="arc c1" d="${arcPath(...B,30,angOf(...B,...C),angOf(...B,...A))}"/>`;
+    for(const [n,p] of [['A',A],['B',B],['C',C]]){ const on=seq.includes(n); s+=`<circle cx="${p[0]}" cy="${p[1]}" r="7" fill="${on?'var(--coral)':'var(--fg)'}"/>`+txt(p[0]+(n==='B'?0:0),p[1]+(n==='B'?24:-18),n,'lbl'); }
+    fig.innerHTML=svg(400,200,s);
+    const name=seq.length? '∢'+seq.join('') : '…';
+    let msg=`<span class="chip">השם: ${M(name)}</span>`;
+    if(seq.length===3){ msg+= seq[1]==='B' ? `<span class="chip" style="background:var(--ok-soft)">מצוין. הקודקוד B באמצע, אז זו הזווית המודגשת.</span>` : `<span class="chip coral">האות האמצעית חייבת להיות הקודקוד (הנקודה שבה הקווים נפגשים): B.</span>`; }
+    out.innerHTML=msg;
+    btns.innerHTML=''; for(const n of ['A','B','C']){ btns.append(h('button',{class:'btn'+(seq.includes(n)?' sel':''),type:'button',onclick:()=>{ if(seq.length===3) seq=[]; if(!seq.includes(n)) seq.push(n); draw(); }},n)); }
+    btns.append(h('button',{class:'btn',type:'button',onclick:()=>{seq=[];draw();}},'נקי'));
+  };
+  draw(); root.append(fig,btns,out);
+  root.append(h('p',{class:'tip',html:'כלל: שם של זווית הוא שלוש אותיות, והקודקוד תמיד באמצע. ∢ABC ו-∢CBA הן אותה זווית. אם אין בלבול, כותבים גם ∢B.'}));
+};
+
+widgets.segAdd=(root)=>{
+  const x0=40,x1=360,y=90; let cx=200; const total=16;
+  const fig=h('div'), out=h('div',{class:'readout'});
+  const draw=()=>{ const ac=((cx-x0)/(x1-x0)*total), cb=total-ac;
+    let s=line(x0,y,x1,y)+line(x0,y,cx,y,'ln c1')+`<circle cx="${x0}" cy="${y}" r="5" fill="var(--fg)"/><circle cx="${x1}" cy="${y}" r="5" fill="var(--fg)"/>`;
+    s+=txt(x0,y+24,'A')+txt(x1,y+24,'B')+txt(cx,y-24,'C')+`<circle data-h="c" class="handle coral" cx="${cx}" cy="${y}" r="11"/>`;
+    s+=txt((x0+cx)/2,y+36,ac.toFixed(1),'lbl sm')+txt((cx+x1)/2,y+36,cb.toFixed(1),'lbl sm');
+    fig.innerHTML=svg(400,140,s);
+    out.innerHTML=`<span class="chip coral">AC = ${M(ac.toFixed(1))}</span><span class="chip">CB = ${M(cb.toFixed(1))}</span><span class="chip gold">AC + CB = AB = ${M('16')}</span>`;
+    const sv=fig.querySelector('svg'); dragSVG(sv,(id,x)=>{ cx=Math.min(x1-10,Math.max(x0+10,x)); draw(); });
+  };
+  draw(); root.append(fig,out);
+  root.append(h('p',{class:'tip',html:'גררי את C. הכלל: השלם שווה לסכום חלקיו. בשביל למצוא חלק: מחסרים. CB = AB - AC. אותו רעיון בדיוק עובד לזוויות: קרן בתוך זווית מחלקת אותה לשתי זוויות שסכומן הזווית הגדולה.'}));
+};
+
+widgets.adjacent=(root)=>{
+  let th=62; const O=[200,160],L=165; const fig=h('div'), out=h('div',{class:'readout'});
+  const draw=()=>{ const hx=O[0]+L*Math.cos(rad(th)), hy=O[1]-L*Math.sin(rad(th));
+    let s=`<path class="f1" d="${wedgePath(...O,60,0,th)}"/><path class="f2" d="${wedgePath(...O,60,th,180)}"/>`+line(20,O[1],380,O[1])+line(...O,hx,hy);
+    s+=`<path class="arc c1" d="${arcPath(...O,34,0,th)}"/><path class="arc c2" d="${arcPath(...O,44,th,180)}"/>`;
+    s+=arcLabel(...O,86,0,th,deg(th))+arcLabel(...O,96,th,180,deg(180-th))+`<circle data-h="r" class="handle" cx="${hx}" cy="${hy}" r="12"/>`+txt(O[0],O[1]+20,'O','lbl sm');
+    fig.innerHTML=svg(400,190,s);
+    out.innerHTML=`<span class="chip coral">${deg(th)}</span><span class="chip">${deg(180-th)}</span><span class="chip gold">${deg(th)} + ${deg(180-th)} = 180°</span>`;
+    dragSVG(fig.querySelector('svg'),(id,x,y)=>{ let a=angOf(...O,x,y); if(a<0)a=a<-90?180:0; th=Math.min(177,Math.max(3,a)); draw(); });
+  };
+  draw(); root.append(fig,out);
+  root.append(h('p',{class:'tip',html:'סובבי את הקרן. הקו הישר הוא "זווית שטוחה" של 180°, והקרן רק חותכת אותה לשני חלקים. לכן שתי זוויות צמודות תמיד משלימות ל-180°. סימן היכר במבחן: שתי זוויות עם קודקוד משותף, צלע משותפת, ושתי הצלעות האחרות ממשיכות זו את זו לקו ישר.'}));
+};
+
+widgets.vertical=(root)=>{
+  let th=120; const O=[200,120],L=150, a0=15; const fig=h('div'), out=h('div',{class:'readout'});
+  const draw=()=>{ const p=a=>[O[0]+L*Math.cos(rad(a)),O[1]-L*Math.sin(rad(a))];
+    const d=th-a0; // angle between the lines measured ccw from fixed line
+    let s=`<path class="f1" d="${wedgePath(...O,56,a0,th)}"/><path class="f1" d="${wedgePath(...O,56,a0+180,th+180)}"/><path class="f3" d="${wedgePath(...O,56,th,a0+180)}"/><path class="f3" d="${wedgePath(...O,56,th+180,a0+360)}"/>`;
+    s+=line(...p(a0),...p(a0+180))+line(...p(th),...p(th+180));
+    s+=`<path class="arc c1" d="${arcPath(...O,30,a0,th)}"/><path class="arc c1" d="${arcPath(...O,30,a0+180,th+180)}"/><path class="arc c3" d="${arcPath(...O,30,th,a0+180)}"/><path class="arc c3" d="${arcPath(...O,30,th+180,a0+360)}"/>`;
+    s+=arcLabel(...O,82,a0,th,deg(d))+arcLabel(...O,82,a0+180,th+180,deg(d))+arcLabel(...O,82,th,a0+180,deg(180-d))+arcLabel(...O,82,th+180,a0+360,deg(180-d));
+    const hp=p(th); s+=`<circle data-h="r" class="handle" cx="${hp[0]}" cy="${hp[1]}" r="12"/>`;
+    fig.innerHTML=svg(400,240,s);
+    out.innerHTML=`<span class="chip coral">קודקודיות: ${deg(d)} = ${deg(d)}</span><span class="chip blue">קודקודיות: ${deg(180-d)} = ${deg(180-d)}</span><span class="chip gold">צמודות: ${deg(d)} + ${deg(180-d)} = 180°</span>`;
+    dragSVG(fig.querySelector('svg'),(id,x,y)=>{ let a=angOf(...O,x,y); if(a<0)a+=360; if(a>a0+180-3) a=a0+180-3; if(a<a0+3) a=a0+3; th=a; draw(); });
+  };
+  draw(); root.append(fig,out);
+  root.append(h('p',{class:'tip',html:'סובבי את הקו. שני קווים שנחתכים יוצרים ארבע זוויות: אלה שמול זו את זו (כמו להבי מספריים) שוות תמיד, ואלה שלידן הן צמודות, אז משלימות ל-180°. מספיק לדעת זווית אחת כדי לדעת את כל הארבע.'}));
+};
+
+widgets.triSum=(root)=>{
+  let A=[200,40],B=[70,190],C=[340,190]; const fig=h('div'), out=h('div',{class:'readout'}), strip=h('div');
+  const angs=()=>{ const f=(V,U,W)=>{ let d=angBetween(V[0],V[1],U[0],U[1],W[0],W[1]); return d>180?360-d:d; }; return [f(A,B,C),f(B,C,A),f(C,A,B)]; };
+  const draw=()=>{ const [a,b,c]=angs();
+    const put=(V,U,W,cls)=>{ const a0=angOf(V[0],V[1],U[0],U[1]), a1=angOf(V[0],V[1],W[0],W[1]); let d=a1-a0; while(d<0)d+=360; const [s0,s1]=d<=180?[a0,a1]:[a1,a0]; return `<path class="${cls.replace('c','f')}" d="${wedgePath(V[0],V[1],30,s0,s1)}"/><path class="arc ${cls}" d="${arcPath(V[0],V[1],30,s0,s1)}"/>`; };
+    let s=`<path class="ln" d="M${P(...A)} L${P(...B)} L${P(...C)} Z"/>`+put(A,B,C,'c1')+put(B,C,A,'c2')+put(C,A,B,'c3');
+    for(const [n,p] of [['A',A],['B',B],['C',C]]) s+=`<circle data-h="${n}" class="handle" cx="${p[0]}" cy="${p[1]}" r="12"/>`;
+    fig.innerHTML=svg(400,240,s);
+    out.innerHTML=`<span class="chip coral">A = ${deg(a)}</span><span class="chip">B = ${deg(b)}</span><span class="chip blue">C = ${deg(c)}</span><span class="chip gold">סכום = ${deg(a+b+c)}</span>`;
+    // strip: the three angles laid side by side on a line
+    let t=line(20,80,380,80); let cur=180; const O=[200,80];
+    for(const [v,cls] of [[a,'c1'],[b,'c2'],[c,'c3']]){ const a1=cur, a2=cur-v; t+=`<path class="${cls.replace('c','f')}" d="${wedgePath(...O,60,a2,a1)}"/><path class="arc ${cls}" d="${arcPath(...O,60,a2,a1)}"/>`; cur=a2; }
+    strip.innerHTML=svg(400,100,t);
+    dragSVG(fig.querySelector('svg'),(id,x,y)=>{ const p=[Math.min(385,Math.max(15,x)),Math.min(225,Math.max(15,y))]; if(id==='A')A=p; if(id==='B')B=p; if(id==='C')C=p; draw(); });
+  };
+  draw(); root.append(fig,out,h('p',{html:'<b>אותן שלוש זוויות, מונחות זו ליד זו על קו ישר:</b>'}),strip);
+  root.append(h('p',{class:'tip',html:'גררי כל קודקוד. איך שלא תמתחי את המשולש, שלוש הזוויות תמיד ממלאות בדיוק קו ישר, כלומר 180°. לכן אם יודעים שתי זוויות, השלישית היא 180 פחות השתיים.'}));
+};
+
+widgets.triArea=(root)=>{
+  const B=[90,200],C=[310,200]; let A=[180,60]; let showRect=false; const fig=h('div'), out=h('div',{class:'readout'}), row=h('div',{class:'row'});
+  const draw=()=>{ const base=(C[0]-B[0])/20, ht=(200-A[1])/20; const fx=A[0];
+    let s=''; if(showRect){ s+=`<rect x="${Math.min(B[0],fx)}" y="${A[1]}" width="${Math.max(C[0],fx)-Math.min(B[0],fx)}" height="${200-A[1]}" fill="var(--gold)" opacity=".18"/>`; }
+    const outside=fx<B[0]||fx>C[0]; if(outside) s+=line(Math.min(B[0],fx)-10,200,Math.max(C[0],fx)+10,200,'ln dash');
+    s+=`<path class="f2" d="M${P(...A)} L${P(...B)} L${P(...C)} Z"/><path class="ln" d="M${P(...A)} L${P(...B)} L${P(...C)} Z"/>`;
+    s+=line(fx,A[1],fx,200,'ln c1')+rightMark(fx,200,fx<A[0]?1:1,0,0,-1,10);
+    s+=txt(A[0],A[1]-18,'A','lbl sm')+txt(B[0]-10,218,'B','lbl sm')+txt(C[0]+10,218,'C','lbl sm')+txt(fx+(outside?0:0),222,'H','lbl sm');
+    s+=txt((B[0]+C[0])/2,236,`בסיס ${M(base.toFixed(1))}`.replace(/<[^>]+>/g,''),'lbl sm')+txt(fx+(fx<200?-44:44),(A[1]+200)/2,`גובה ${ht.toFixed(1)}`,'lbl sm');
+    s+=`<circle data-h="A" class="handle" cx="${A[0]}" cy="${A[1]}" r="12"/>`;
+    fig.innerHTML=svg(400,250,s);
+    const type= ht<=0?'' : (fx<B[0]||fx>C[0]) ? 'קהה-זווית: הגובה נופל מחוץ למשולש, על המשך הבסיס' : (Math.abs(fx-B[0])<6||Math.abs(fx-C[0])<6) ? 'ישר-זווית: הגובה הוא ממש אחת הצלעות' : 'חד-זווית: הגובה בתוך המשולש';
+    out.innerHTML=`<span class="chip">בסיס = ${M(base.toFixed(1))}</span><span class="chip coral">גובה = ${M(ht.toFixed(1))}</span><span class="chip gold">שטח = ${M(base.toFixed(1)+' × '+ht.toFixed(1)+' ÷ 2 = '+(base*ht/2).toFixed(1))}</span><span class="chip blue">${type}</span>`;
+    dragSVG(fig.querySelector('svg'),(id,x,y)=>{ A=[Math.min(385,Math.max(15,x)),Math.min(170,Math.max(20,y))]; draw(); });
+  };
+  row.append(h('button',{class:'btn',type:'button',onclick:e=>{showRect=!showRect;e.target.classList.toggle('sel',showRect);draw();}},'להראות את המלבן'));
+  draw(); root.append(fig,out,row);
+  root.append(h('p',{class:'tip',html:'גררי את A, גם רחוק הצידה. הגובה הוא תמיד הקו האנכי (90°) מהקודקוד אל הבסיס או אל המשך הבסיס, אף פעם לא "הצלע הנטויה". המלבן מראה למה מחלקים ב-2: המשולש הוא בדיוק חצי מלבן באותו בסיס ואותו גובה.'}));
+};
+
+widgets.special=(root)=>{
+  const B=[70,200],C=[340,200]; let A=[150,50]; let mode='bis'; const fig=h('div'), row=h('div',{class:'row'}), desc=h('p',{class:'rule'});
+  const texts={bis:'חוצה זווית: קטע מהקודקוד שמחלק את הזווית לשתי זוויות שוות. הסימן: שתי קשתות שוות ליד A.', med:'תיכון: קטע מהקודקוד לאמצע הצלע שמולו. הסימן: שני סימונים שווים על BC. מהצד של הזווית הוא יכול להיות נטוי.', hgt:'גובה: קטע מהקודקוד שמאונך (90°) לצלע שמולו או להמשכה. הסימן: ריבוע קטן של זווית ישרה. במשולש קהה-זווית הוא יוצא החוצה.'};
+  const draw=()=>{ let s=`<path class="ln" d="M${P(...A)} L${P(...B)} L${P(...C)} Z"/>`;
+    const dAB=Math.hypot(A[0]-B[0],A[1]-B[1]), dAC=Math.hypot(A[0]-C[0],A[1]-C[1]);
+    if(mode==='bis'){ const t=dAB/(dAB+dAC); const D=[B[0]+(C[0]-B[0])*t,200]; s+=line(...A,...D,'ln c1'); const a0=angOf(...A,...B),a1=angOf(...A,...D),a2=angOf(...A,...C); const ord=(p,q)=>{let d=q-p;while(d<0)d+=360;return d<=180?[p,q]:[q,p];}; let [u,v]=ord(a0,a1); s+=`<path class="arc c1" d="${arcPath(...A,26,u,v)}"/>`; [u,v]=ord(a1,a2); s+=`<path class="arc c1" d="${arcPath(...A,32,u,v)}"/>`; s+=txt(D[0],222,'D','lbl sm'); }
+    if(mode==='med'){ const D=[(B[0]+C[0])/2,200]; s+=line(...A,...D,'ln c3'); s+=line((B[0]+D[0])/2,194,(B[0]+D[0])/2,206,'ln c3')+line((D[0]+C[0])/2,194,(D[0]+C[0])/2,206,'ln c3')+txt(D[0],222,'D','lbl sm'); }
+    if(mode==='hgt'){ const D=[A[0],200]; const outside=A[0]<B[0]||A[0]>C[0]; if(outside) s+=line(Math.min(B[0],A[0])-12,200,Math.max(C[0],A[0])+12,200,'ln dash'); s+=line(...A,...D,'ln c2')+rightMark(D[0],D[1],A[0]<=200?1:-1,0,0,-1,11)+txt(D[0],222,'D','lbl sm'); }
+    s+=txt(A[0],A[1]-18,'A','lbl sm')+txt(B[0]-12,218,'B','lbl sm')+txt(C[0]+12,218,'C','lbl sm')+`<circle data-h="A" class="handle" cx="${A[0]}" cy="${A[1]}" r="12"/>`;
+    fig.innerHTML=svg(400,240,s); desc.textContent=texts[mode];
+    dragSVG(fig.querySelector('svg'),(id,x,y)=>{ A=[Math.min(385,Math.max(15,x)),Math.min(160,Math.max(20,y))]; draw(); });
+  };
+  for(const [k,n] of [['bis','חוצה זווית'],['med','תיכון'],['hgt','גובה']]) row.append(h('button',{class:'btn'+(k===mode?' sel':''),type:'button',onclick:e=>{mode=k;[...row.children].forEach(b=>b.classList.remove('sel'));e.target.classList.add('sel');draw();}},n));
+  draw(); root.append(row,fig,desc);
+  root.append(h('p',{class:'tip',html:'גררי את A לכל מקום ועברי בין שלושת הקווים. דרך לזכור: <b>גובה</b> = מה שמודדים עם סרגל ניצב, <b>תיכון</b> = "תיכון" הוא באמצע, <b>חוצה זווית</b> = חותך את הזווית שווה בשווה, לא את הצלע.'}));
+};
+
+widgets.sqModel=(root)=>{
+  let a=5,b=2; const fig=h('div'), out=h('div',{class:'readout'}), sa=h('input',{type:'range',min:2,max:8,value:a,id:'sqA'}), sb=h('input',{type:'range',min:1,max:5,value:b,id:'sqB'});
+  const draw=()=>{ const u=28, x0=60,y0=30; const A=a*u,Bv=b*u;
+    let s=`<rect x="${x0}" y="${y0+Bv}" width="${A}" height="${A}" class="f2" style="opacity:.35"/><rect x="${x0+A}" y="${y0+Bv}" width="${Bv}" height="${A}" class="f4" style="opacity:.5"/><rect x="${x0}" y="${y0}" width="${A}" height="${Bv}" class="f4" style="opacity:.5"/><rect x="${x0+A}" y="${y0}" width="${Bv}" height="${Bv}" class="f1" style="opacity:.4"/>`;
+    s+=`<rect x="${x0}" y="${y0}" width="${A+Bv}" height="${A+Bv}" fill="none" stroke="var(--fg)" stroke-width="2"/>`+line(x0,y0+Bv,x0+A+Bv,y0+Bv,'ln thin')+line(x0+A,y0,x0+A,y0+A+Bv,'ln thin');
+    s+=txt(x0+A/2,y0+Bv+A/2,`a² = ${a*a}`)+txt(x0+A+Bv/2,y0+Bv+A/2,`ab`,'lbl sm')+txt(x0+A/2,y0+Bv/2,`ab = ${a*b}`,'lbl sm')+txt(x0+A+Bv/2,y0+Bv/2,`b²`,'lbl sm');
+    s+=txt(x0+A/2,y0+A+Bv+18,`a = ${a}`,'lbl sm')+txt(x0+A+Bv/2,y0+A+Bv+18,`b = ${b}`,'lbl sm')+txt(x0-22,y0+Bv+A/2,'a','lbl sm')+txt(x0-22,y0+Bv/2,'b','lbl sm');
+    fig.innerHTML=svg(460,y0+A+Bv+40,s);
+    out.innerHTML=`<span class="chip gold">${M(`(${a}+${b})² = ${(a+b)*(a+b)}`)}</span><span class="chip">${M(`a² + 2ab + b² = ${a*a} + ${2*a*b} + ${b*b} = ${a*a+2*a*b+b*b}`)}</span>`;
+  };
+  sa.oninput=()=>{a=+sa.value;draw();}; sb.oninput=()=>{b=+sb.value;draw();};
+  draw(); root.append(fig,out,h('label',{class:'sl'},'a',sa),h('label',{class:'sl'},'b',sb));
+  root.append(h('p',{class:'tip',html:'ריבוע שצלעו a+b מתחלק לארבעה חלקים: ריבוע a², ריבוע b², ושני מלבנים ab. לכן ה-2ab באמצע הנוסחה הוא לא קסם, הוא שני מלבנים. הטעות הכי נפוצה במבחן: לכתוב (a+b)² = a²+b² ולשכוח את שני המלבנים.'}));
+};
+
+widgets.shadedSq=(root)=>{
+  let x=3; const fig=h('div'), out=h('div',{class:'readout'}), sx=h('input',{type:'range',min:1,max:6,value:x,id:'shX'});
+  const draw=()=>{ const u=14, O=(2*x+4)*u, I=(x+2)*u, x0=40,y0=30;
+    let s=`<rect x="${x0}" y="${y0}" width="${O}" height="${O}" fill="var(--soft)" stroke="var(--fg)" stroke-width="2"/><rect x="${x0+(O-I)/2}" y="${y0+(O-I)/2}" width="${I}" height="${I}" fill="var(--card)" stroke="var(--fg)" stroke-width="2"/>`;
+    s+=txt(x0+O/2,y0-12,`2x+4 = ${2*x+4}`,'lbl sm')+txt(x0+O/2,y0+O/2,`x+2 = ${x+2}`,'lbl sm');
+    fig.innerHTML=svg(x0*2+O,y0*2+O,s);
+    const o=(2*x+4)**2,i=(x+2)**2;
+    out.innerHTML=`<span class="chip">חיצוני ${M(`(2x+4)² = ${o}`)}</span><span class="chip">פנימי ${M(`(x+2)² = ${i}`)}</span><span class="chip gold">מנוקד ${M(`${o} - ${i} = ${o-i}`)}</span><span class="chip coral">${M(`3x²+12x+12 = ${3*x*x+12*x+12}`)}</span>`;
+  };
+  sx.oninput=()=>{x=+sx.value;draw();};
+  draw(); root.append(fig,out,h('label',{class:'sl'},'x',sx));
+  root.append(h('p',{class:'tip',html:'שטח מנוקד = שטח הצורה הגדולה פחות שטח "החור". תמיד שני שלבים: קודם ביטוי לכל צורה בנפרד (עם נוסחת כפל מקוצר), ורק אז חיסור. הסליידר מראה שהביטוי המכונס נותן בדיוק אותו מספר כמו החישוב הישיר.'}));
+};
+
+/* ---------- proof builder ---------- */
+function proofBuilder(root, p){
+  let seq=[]; const tiles=h('div',{class:'tiles'}), seqEl=h('div',{class:'seq'}), fb=h('div');
+  const order=shuffle(p.steps.map((s,i)=>i));
+  const draw=()=>{ seqEl.innerHTML=''; if(!seq.length) seqEl.append(h('div',{class:'empty'},'הקישי על השורות למטה לפי הסדר הנכון. כל שורה: טענה, ואז הנימוק.'));
+    seq.forEach((i,k)=>{ const s=p.steps[i]; seqEl.append(h('div',{class:'st'},h('b',{},`${k+1}.`),h('span',{html:`${s.c} <span style="color:var(--muted)">(${s.r})</span>`}))); });
+    tiles.innerHTML=''; order.forEach(i=>{ const s=p.steps[i]; tiles.append(h('button',{type:'button',class:'tile'+(seq.includes(i)?' used':''),onclick:()=>{ if(seq.includes(i)) return; seq.push(i); fb.innerHTML=''; draw(); }},h('span',{html:s.c}),h('span',{class:'r',html:s.r}))); });
+  };
+  const check=()=>{ if(seq.length<p.steps.length){ fb.innerHTML=`<div class="fb hint">עוד לא סידרת את כל ${p.steps.length} השורות.</div>`; return; }
+    const bad=seq.findIndex((v,k)=>v!==k);
+    if(bad<0){ fb.innerHTML=`<div class="fb ok">הוכחה מלאה ונכונה. ${p.done||''}</div>`; store.q[p.id]=true; save(); }
+    else { [...seqEl.children][bad].classList.add('bad'); fb.innerHTML=`<div class="fb no">שורה ${bad+1} לא במקום. ${p.hints && p.hints[bad] ? p.hints[bad] : 'שאלי: מה אני כבר יודעת בשלב הזה, ומה נובע ממנו?'}</div>`; }
+  };
+  root.append(h('div',{class:'rule',html:`<b>נתון:</b> ${p.given}<br><b>צריך למצוא / להוכיח:</b> ${p.prove}`}));
+  if(p.fig) root.append(h('div',{html:p.fig}));
+  root.append(seqEl, h('div',{class:'row'}, h('button',{class:'btn primary',type:'button',onclick:check},'בדקי'), h('button',{class:'btn',type:'button',onclick:()=>{seq=[];fb.innerHTML='';draw();}},'מהתחלה')), fb, tiles);
+  draw();
+}
+
+/* ---------- question renderer ---------- */
+function renderQ(root, q, opts={}){
+  const silent=!!opts.silent; let tries=0; const fb=h('div');
+  root.append(h('div',{class:'stem',html:q.q}));
+  if(q.fig) root.append(h('div',{html:q.fig}));
+  const done=(ok)=>{ if(!silent){ if(ok||tries>=2){ store.q[q.id]= ok && tries===1 ? true : (store.q[q.id]===true?true:'retry'); save(); } } if(opts.onAnswer) opts.onAnswer(ok); };
+  if(q.kind==='mc'){
+    const opts2=h('div',{class:'opts'}); const order = q.keep? q.opts.map((o,i)=>i) : shuffle(q.opts.map((o,i)=>i));
+    order.forEach(i=>{ const b=h('button',{type:'button',class:'opt',html:q.opts[i]}); b.onclick=()=>{ tries++; const ok=i===q.a;
+        if(silent){ [...opts2.children].forEach(c=>{c.classList.remove('sel');c.disabled=false;}); b.classList.add('sel'); opts.onAnswer(ok, i); return; }
+        if(ok){ b.classList.add('right'); [...opts2.children].forEach(c=>c.disabled=true); fb.innerHTML=`<div class="fb ok"><b>נכון.</b> ${q.why}</div>`; }
+        else { b.classList.add('wrong'); b.disabled=true; fb.innerHTML = tries<2 ? `<div class="fb hint">לא בדיוק. ${q.hint||'נסי שוב, תחשבי מה הכלל שמתאים כאן.'}</div>` : `<div class="fb no">התשובה הנכונה: ${q.opts[q.a]}. ${q.why}</div>`; if(tries>=2){ [...opts2.children].forEach(c=>{c.disabled=true; if(+c.dataset.i===q.a) c.classList.add('right');}); } }
+        done(ok); };
+      b.dataset.i=i; opts2.append(b); });
+    root.append(opts2);
+  } else {
+    const inp=h('input',{type:'number',inputmode:'decimal',step:'any',id:'in-'+q.id,placeholder:'?'}); const unit=q.unit||'';
+    const btn=h('button',{type:'button',class:'btn primary'},'בדקי');
+    const go=()=>{ if(inp.value==='') return; tries++; const v=parseFloat(inp.value); const ok=Math.abs(v-q.a)<=(q.tol||0.01);
+      if(silent){ opts.onAnswer(ok, v); btn.textContent='נשמר'; return; }
+      if(ok){ fb.innerHTML=`<div class="fb ok"><b>נכון, ${M(q.a)}${unit}.</b> ${q.why}</div>`; inp.disabled=true; btn.disabled=true; }
+      else { fb.innerHTML = tries<2 ? `<div class="fb hint">לא בדיוק. ${q.hint||'בדקי את החשבון שוב.'}</div>` : `<div class="fb no">התשובה: ${M(q.a)}${unit}. ${q.why}</div>`; if(tries>=2){inp.disabled=true;btn.disabled=true;} }
+      done(ok); };
+    btn.onclick=go; inp.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+    root.append(h('div',{class:'numin'},inp,unit?h('span',{},unit):null,btn));
+  }
+  root.append(fb);
+}
+
+/* ---------- content ---------- */
+const G=(id,kind,q,a,why,extra={})=>Object.assign({id,kind,q,a,why},extra);
+const LESSONS=[
+{ id:'g1', part:'geo', title:'סימון: נקודות, קטעים, זוויות', blurb:'איך קוראים לדברים בציור, ולמה הקודקוד תמיד באמצע', steps:[
+  {t:'text',eyebrow:'למה זה חשוב',html:'במבחן הזה כל טענה נכתבת בשפה של הגאומטריה: ∢ABC, AB = 5, ∢1 = ∢3. אם השם לא נכון, הטענה לא נכונה גם כשהרעיון נכון. זה הנושא הכי קל לקבל עליו נקודות מלאות.'},
+  {t:'widget',w:'angleName',eyebrow:'נסי בעצמך',h:'תני שם לזווית'},
+  {t:'text',eyebrow:'המילון הקטן',html:'<ul><li><b>נקודה</b>: אות גדולה. A.</li><li><b>קטע AB</b>: יש לו התחלה וסוף, ואפשר למדוד את אורכו. AB = 7.</li><li><b>קרן</b>: מתחילה בנקודה וממשיכה לאינסוף בכיוון אחד. "קרן OC".</li><li><b>ישר</b>: ממשיך לשני הכיוונים. כשכתוב "הנקודות A, O, B על ישר אחד" זה אומר: ∢AOB היא זווית שטוחה, 180°.</li><li><b>זווית</b>: ∢ABC, הקודקוד באמצע. או ∢1, ∢α כשהזווית מסומנת בציור.</li><li><b>סוגי זוויות</b>: חדה (פחות מ-90°), ישרה (90°, מסומנת בריבוע קטן), קהה (בין 90° ל-180°), שטוחה (180°).</li></ul>'},
+  {t:'q',q:G('g1q1','mc','בזווית ∢DOC, איזו נקודה היא הקודקוד?',1,'האות האמצעית בשם היא תמיד הקודקוד, הנקודה שממנה יוצאות שתי הצלעות.',{opts:['D','O','C','אי אפשר לדעת'],hint:'מה הכלל על האות האמצעית?'})},
+  {t:'q',q:G('g1q2','mc','הנקודות A, O, B נמצאות על ישר אחד, ו-O ביניהן. מה גודל ∢AOB?',2,'שלוש נקודות על ישר אחד יוצרות זווית שטוחה. זה הנתון שממנו מתחילות כמעט כל שאלות הזוויות הצמודות.',{opts:['90°','0°','180°','360°'],hint:'איך נראית זווית שצלעותיה הן קו ישר אחד?'})},
+  {t:'q',q:G('g1q3','mc','זווית של 115° היא:',1,'בין 90° ל-180° זה קהה. סימן מהיר: גדולה מפינת דף.',{opts:['חדה','קהה','ישרה','שטוחה'],hint:'השוו ל-90°.'})},
+  {t:'q',q:G('g1q4','mc','איזה שם מתאר את אותה זווית כמו ∢ABC?',0,'∢ABC ו-∢CBA הם אותו דבר: אותו קודקוד B, אותן שתי צלעות. ∢BAC זו זווית אחרת, שהקודקוד שלה A.',{opts:['∢CBA','∢BAC','∢ACB','∢BCA'],hint:'הקודקוד חייב להישאר באמצע.'})},
+]},
+{ id:'g2', part:'geo', title:'חיבור וחיסור קטעים וזוויות', blurb:'השלם שווה לסכום חלקיו, וחוצה זווית', steps:[
+  {t:'widget',w:'segAdd',eyebrow:'נסי בעצמך',h:'נקודה על קטע'},
+  {t:'text',eyebrow:'אותו כלל, לזוויות',html:'<p>אם הקרן OC נמצאת בתוך ∢AOB, אז ∢AOC + ∢COB = ∢AOB. הנימוק שכותבים: <b>"השלם שווה לסכום חלקיו"</b>.</p><p class="rule">חוצה זווית: קרן שמחלקת זווית לשתי זוויות שוות. אם OC חוצה את ∢AOB, אז ∢AOC = ∢COB = חצי מ-∢AOB.</p><p class="warn">טעות נפוצה: חוצה זווית מחלק את <b>הזווית</b> לשני חלקים שווים, לא את הצלע שמולה. חלוקת צלע לשני חלקים שווים זה תיכון (נושא 7).</p>'},
+  {t:'q',q:G('g2q1','num','הנקודה C על הקטע AB. נתון AB = 14, AC = 5.5. מה אורך CB?',8.5,'CB = AB - AC = 14 - 5.5 = 8.5. חלק = שלם פחות החלק האחר.',{hint:'השלם 14 מורכב משני חלקים. אחד מהם 5.5.'})},
+  {t:'q',q:G('g2q2','num','הקרן OC בתוך ∢AOB. נתון ∢AOB = 130°, ∢AOC = 48°. מה גודל ∢COB?',82,'∢COB = 130 - 48 = 82. נימוק: השלם שווה לסכום חלקיו.',{unit:'°',hint:'הזווית הגדולה היא השלם. מחסרים את החלק הידוע.'})},
+  {t:'q',q:G('g2q3','num','OD חוצה את ∢COE. נתון ∢COE = 72°. מה גודל ∢DOE?',36,'חוצה זווית יוצר שתי זוויות שוות, כל אחת חצי: 72 ÷ 2 = 36. זו בדיוק זווית 1 בתרגיל 5 מדף התרגול.',{unit:'°',hint:'חוצה = שני חלקים שווים.'})},
+  {t:'q',q:G('g2q4','mc','OB חוצה את ∢AOC ונתון ∢AOB = 54°. מה גודל ∢AOC?',2,'∢AOC מורכבת משני חלקים שווים של 54°, אז 108°. כאן הולכים מהחלק אל השלם: כופלים ב-2.',{opts:['27°','54°','108°','126°'],hint:'הפעם נתון החלק, ושואלים על השלם.'})},
+]},
+{ id:'g3', part:'geo', title:'זוויות צמודות', blurb:'שתי זוויות על קו ישר משלימות ל-180°', steps:[
+  {t:'widget',w:'adjacent',eyebrow:'נסי בעצמך',h:'קרן על קו ישר'},
+  {t:'text',eyebrow:'איך פותרים במבחן',html:'<p class="rule">משפט: סכום זוויות צמודות שווה ל-180°.</p><ol style="padding-inline-start:20px;margin:0;display:grid;gap:4px"><li>מזהים: קודקוד משותף, צלע משותפת, שתי הצלעות האחרות על ישר אחד.</li><li>כותבים משוואה: (הזווית הראשונה) + (הזווית השנייה) = 180.</li><li>פותרים את x, ואז <b>מציבים חזרה</b> ומוצאים את הזוויות עצמן. השאלה כמעט תמיד מבקשת את הזוויות, לא רק את x.</li><li>בודקים: שתי הזוויות מסתכמות ל-180.</li></ol>'},
+  {t:'q',q:G('g3q1','num','שתי זוויות צמודות: 7x ו-2x. מהו x?',20,'7x + 2x = 180, אז 9x = 180, x = 20. הזוויות: 140° ו-40°. בדיקה: 140 + 40 = 180.',{fig:figAdj('7x','2x'),hint:'סכום שתיהן 180. חברי את ה-x-ים.'})},
+  {t:'q',q:G('g3q2','num','שתי זוויות צמודות: 8x + 50° ו-5x. מהו x?',10,'8x + 50 + 5x = 180, 13x = 130, x = 10. הזוויות: 130° ו-50°.',{fig:figAdj('8x+50°','5x',{th:50}),hint:'13x + 50 = 180.'})},
+  {t:'q',q:G('g3q3','mc','שתי זוויות צמודות: 2x + 35° ו-7x + 10°. מהן הזוויות?',1,'9x + 45 = 180, 9x = 135, x = 15. ואז 2·15 + 35 = 65, 7·15 + 10 = 115. מי שעונה "x = 15" ועוצר מאבדת נקודות.',{fig:figAdj('2x+35°','7x+10°',{th:115}),opts:['15° ו-165°','65° ו-115°','70° ו-110°','35° ו-145°'],hint:'קודם x, ואז להציב בכל ביטוי.'})},
+  {t:'q',q:G('g3q4','num','משולש עומד על קו ישר. הזווית הפנימית בבסיס השמאלי היא α = 50°. מה גודל הזווית החיצונית γ שלידה?',130,'γ צמודה ל-α על הקו הישר: γ = 180 - 50 = 130. (תרגיל 3א מהדף.)',{unit:'°',fig:figTriLine('α','β','γ','δ'),hint:'γ ו-α יושבות יחד על הקו הישר.'})},
+  {t:'q',q:G('g3q5','num','באותו ציור, β = 65°. מה גודל δ?',115,'δ = 180 - 65 = 115. באותו תרגיל יש גם גרסה עם α = β = 40°: אז γ = δ = 140°.',{unit:'°',hint:'צמודות: 180 פחות.'})},
+]},
+{ id:'g4', part:'geo', title:'זוויות קודקודיות', blurb:'שני קווים נחתכים: מול = שווה, ליד = 180', steps:[
+  {t:'widget',w:'vertical',eyebrow:'נסי בעצמך',h:'שני קווים נחתכים'},
+  {t:'text',eyebrow:'לזהות נכון',html:'<p class="rule">משפט: זוויות קודקודיות שוות זו לזו.</p><p>קודקודיות = נוצרות משני ישרים שנחתכים, ויושבות <b>זו מול זו</b>, כך שהצלעות של האחת הן המשכים של הצלעות של השנייה. אם שתי זוויות חולקות צלע, הן לא קודקודיות, הן צמודות.</p><p class="warn">מלכודת מהדף (תרגיל 2): זוויות שנראות "מול" אבל הצלעות שלהן לא ממשיכות לקו ישר, הן לא קודקודיות ולא צמודות. בדקי שיש שני ישרים שלמים, לא קרניים שנעצרות.</p><p class="tip">שיטת 4 הזוויות: נתונה זווית אחת, נגיד 40°. מולה: 40°. שתי השכנות: 180 - 40 = 140° כל אחת. סך הכול 40 + 40 + 140 + 140 = 360.</p>'},
+  {t:'q',q:G('g4q1','mc','שני ישרים נחתכים ואחת הזוויות 40°. מהן שלוש האחרות?',2,'מול ה-40 יש 40 (קודקודיות). השתיים האחרות צמודות ל-40, אז 140 כל אחת.',{fig:figX('40°','?','?','?'),opts:['40°, 40°, 40°','140°, 140°, 140°','40°, 140°, 140°','50°, 50°, 130°'],hint:'אחת מול, שתיים ליד.'})},
+  {t:'q',q:G('g4q2','num','שני ישרים נחתכים, אחת הזוויות 87°. מה גודל הזווית הצמודה לה?',93,'180 - 87 = 93. הקודקודית ל-87 היא 87, והשתיים האחרות 93.',{unit:'°',hint:'צמודות משלימות ל-180.'})},
+  {t:'q',q:G('g4q3','num','שני ישרים נחתכים. הזוויות α (ימין), β (למעלה), γ (שמאל). נתון α + β + γ = 310°. מה גודל β?',50,'ארבע הזוויות יחד 360°. החסרה: הזווית הרביעית, למטה, היא 360 - 310 = 50°, והיא קודקודית ל-β, אז β = 50°. ואז α = γ = 130°. (תרגיל 4 מהדף.)',{unit:'°',fig:figX('β','α','?','γ'),hint:'כמה כל ארבע הזוויות יחד? מה נשאר לרביעית?'})},
+  {t:'q',q:G('g4q4','num','שני ישרים נחתכים. α ו-γ זו מול זו, β ביניהן. נתון α + γ = 138°. מה גודל β?',111,'α ו-γ קודקודיות, אז שוות: כל אחת 69°. β צמודה ל-α: 180 - 69 = 111°. (תרגיל 5 מהדף.)',{unit:'°',fig:figX('β','α','?','γ'),hint:'קודם מצאי את α מתוך השוויון α = γ.'})},
+  {t:'q',q:G('g4q5','num','זוויות קודקודיות: x + 45° ו-2x - 35°. מהו x?',80,'קודקודיות שוות: x + 45 = 2x - 35, אז x = 80. הזוויות: 125° ו-125°, ושתי האחרות 55°. (תרגיל 10א.)',{fig:figX('x+45°','','2x-35°',''),hint:'קודקודיות = משוואה של שוויון, לא של 180.'})},
+  {t:'q',q:G('g4q6','num','זוויות קודקודיות: 5x - 65° ו-55° - x. מה גודל הזווית?',35,'5x - 65 = 55 - x, 6x = 120, x = 20. הזווית: 5·20 - 65 = 35°. בדיקה: 55 - 20 = 35. ארבע הזוויות: 35, 35, 145, 145. (תרגיל 10ב.)',{unit:'°',fig:figX('','5x-65°','','55°-x'),hint:'אחרי x, להציב. השאלה שואלת על הזווית.'})},
+  {t:'q',q:G('g4q7','num','זוויות קודקודיות: 2x + 30° ו-205° - 3x. מה גודל הזווית הצמודה להן?',80,'2x + 30 = 205 - 3x, 5x = 175, x = 35. הזווית: 100°. הצמודה: 180 - 100 = 80°. (תרגיל 10ג.)',{unit:'°',fig:figX('2x+30°','','205°-3x',''),hint:'קודם x, ואז הזווית (100), ואז 180 פחות.'})},
+  {t:'q',q:G('g4q8','mc','שלושה ישרים AB, CD, EF נחתכים בנקודה O. מהי הזווית הקודקודית ל-∢AOC?',1,'הקודקודית נוצרת מהמשכי אותם שני ישרים: המשך OA הוא OB, המשך OC הוא OD. לכן ∢BOD. (תרגיל 6 מהדף.) ∢COB ו-∢AOD הן הצמודות שלה.',{fig:figThree(),opts:['∢COB','∢BOD','∢AOD','∢EOF'],hint:'קחי את ההמשך של כל אחת משתי הצלעות.'})},
+]},
+{ id:'g5', part:'geo', title:'סכום זוויות במשולש', blurb:'תמיד 180°, ואיך משלבים עם צמודות', steps:[
+  {t:'widget',w:'triSum',eyebrow:'נסי בעצמך',h:'משולש שאפשר למתוח'},
+  {t:'text',eyebrow:'איך פותרים',html:'<p class="rule">משפט: סכום הזוויות במשולש שווה ל-180°.</p><ul><li>שתי זוויות ידועות: השלישית = 180 פחות שתיהן.</li><li>זוויות עם x: כותבים (זווית 1) + (זווית 2) + (זווית 3) = 180 ופותרים.</li><li>משולש ישר-זווית: אחת כבר 90, אז שתי החדות משלימות ל-90.</li><li>שילוב עם צמודות: קודם מוצאים זווית פנימית מהצמודה שלה, ואז 180 במשולש.</li></ul>'},
+  {t:'q',q:G('g5q1','num','במשולש שתי זוויות: 50° ו-60°. מה השלישית?',70,'180 - 50 - 60 = 70.',{unit:'°',fig:figTri([200,40],[60,190],[340,190],{a:'?',b:'50°',c:'60°'}),hint:'180 פחות שתיהן.'})},
+  {t:'q',q:G('g5q2','num','במשולש ישר-זווית אחת הזוויות החדות היא 35°. מה גודל השנייה?',55,'90 + 35 + ? = 180, אז ? = 55. במשולש ישר-זווית שתי החדות תמיד מסתכמות ל-90.',{unit:'°',hint:'הזווית הישרה כבר לוקחת 90.'})},
+  {t:'q',q:G('g5q3','mc','זוויות המשולש הן x, 2x, 3x. מהן הזוויות?',1,'x + 2x + 3x = 6x = 180, x = 30. הזוויות: 30°, 60°, 90°. זה משולש ישר-זווית.',{opts:['30°, 30°, 120°','30°, 60°, 90°','20°, 40°, 120°','45°, 45°, 90°'],hint:'6x = 180.'})},
+  {t:'q',q:G('g5q4','num','משולש על קו ישר. הזווית החיצונית γ = 130°, הזווית בקודקוד העליון 70°. מה גודל β, הזווית הפנימית הימנית?',60,'שני שלבים: α = 180 - 130 = 50 (צמודות). ואז β = 180 - 50 - 70 = 60 (סכום זוויות במשולש).',{unit:'°',fig:figTriLine('α','β','130°','δ'),hint:'קודם α מהצמודה. ואז סכום במשולש.'})},
+  {t:'q',q:G('g5q5','num','באותו ציור, מה גודל δ, הזווית החיצונית הימנית?',120,'δ צמודה ל-β: 180 - 60 = 120. שימי לב: δ = 50 + 70, סכום שתי הזוויות הפנימיות הרחוקות. זה תמיד קורה, ואפשר להשתמש בזה לבדיקה.',{unit:'°',hint:'β כבר ידועה (60).'})},
+]},
+{ id:'g6', part:'geo', title:'שטח משולש', blurb:'בסיס כפול גובה חלקי 2, בכל סוג משולש', steps:[
+  {t:'widget',w:'triArea',eyebrow:'נסי בעצמך',h:'משולש וגובה'},
+  {t:'text',eyebrow:'הנוסחה והמלכודת',html:'<p class="rule">שטח משולש = (בסיס × גובה) ÷ 2</p><ul><li>הגובה חייב להיות <b>מאונך</b> לבסיס שבחרת (ריבוע קטן בציור). צלע נטויה היא לא גובה.</li><li><b>חד-זווית</b>: הגובה בפנים.</li><li><b>ישר-זווית</b>: שני הניצבים הם בסיס וגובה זה של זה. שטח = (ניצב × ניצב) ÷ 2.</li><li><b>קהה-זווית</b>: הגובה לבסיס נופל בחוץ, על המשך הבסיס. הנוסחה לא משתנה.</li></ul><p class="warn">אם יש בציור כמה מספרים, שאלי: איזה שניים הם זוג "בסיס + הגובה שלו"? השלישי הוא הסחה.</p>'},
+  {t:'q',q:G('g6q1','num','בסיס 8 ס"מ, גובה 5 ס"מ. מה השטח?',20,'8 × 5 ÷ 2 = 20.',{unit:'סמ"ר',hint:'כפל ואז חצי.'})},
+  {t:'q',q:G('g6q2','num','משולש ישר-זווית, ניצבים 6 ו-8, יתר 10. מה השטח?',24,'הניצבים הם בסיס וגובה: 6 × 8 ÷ 2 = 24. היתר (10) לא משתתף. מי שעושה 10 × 8 ÷ 2 = 40 טועה.',{unit:'סמ"ר',hint:'היתר הוא הצלע הנטויה. לא גובה.'})},
+  {t:'q',q:G('g6q3','num','משולש קהה-זווית: הבסיס BC = 10, הגובה מ-A נופל על המשך הבסיס ואורכו 4. מה השטח?',20,'10 × 4 ÷ 2 = 20. הגובה בחוץ, הנוסחה זהה.',{unit:'סמ"ר',hint:'כלום לא משתנה כשהגובה בחוץ.'})},
+  {t:'q',q:G('g6q4','mc','במשולש הקהה ABC, איזה קו מבין 1, 2, 3 הוא הגובה מ-A לצלע BC?',0,'הגובה הוא הקו שיוצר 90° עם הישר של BC. קו 1 הוא אנכי ונופל על המשך הבסיס. קו 2 נוטה, קו 3 נוטה.',{fig:figHeightChoice(),opts:['קו 1','קו 2','קו 3'],keep:true,hint:'חפשי את ה-90°.'})},
+  {t:'q',q:G('g6q5','num','שטח משולש 36 סמ"ר, הבסיס 9 ס"מ. מה הגובה?',8,'36 = 9 × h ÷ 2, אז 9h = 72, h = 8. מהשטח חזרה: כופלים ב-2 ומחלקים בבסיס.',{unit:'ס"מ',hint:'הכפילי את השטח ב-2 ואז חלקי בבסיס.'})},
+]},
+{ id:'g7', part:'geo', title:'קווים מיוחדים במשולש', blurb:'חוצה זווית, תיכון, גובה: לזהות ולהשתמש', steps:[
+  {t:'widget',w:'special',eyebrow:'נסי בעצמך',h:'שלושה קווים מקודקוד A'},
+  {t:'text',eyebrow:'מה כל אחד נותן לך בהוכחה',html:'<ul><li><b>AD חוצה זווית</b> ⇒ ∢BAD = ∢DAC. (שתי זוויות שוות.)</li><li><b>AD תיכון</b> ⇒ BD = DC. (שני קטעים שווים.)</li><li><b>AD גובה</b> ⇒ ∢ADB = ∢ADC = 90°. (זוויות ישרות.)</li></ul><p class="tip">כשכתוב "AD תיכון" בנתון, השורה הראשונה בפתרון היא "BD = DC (AD תיכון)". הנתון הוא המילה, הטענה היא השוויון שנובע ממנה.</p>'},
+  {t:'q',q:G('g7q1','mc','AD תיכון במשולש ABC. מה נכון?',1,'תיכון מחבר קודקוד לאמצע הצלע שמולו, אז D אמצע BC ו-BD = DC.',{opts:['∢BAD = ∢DAC','BD = DC','∢ADB = 90°','AB = AC'],hint:'תיכון = אמצע צלע.'})},
+  {t:'q',q:G('g7q2','mc','AD גובה במשולש ABC. מה נכון?',2,'גובה מאונך לצלע: ∢ADB = 90°.',{opts:['∢BAD = ∢DAC','BD = DC','∢ADB = 90°','AD = BC'],hint:'גובה = אנך.'})},
+  {t:'q',q:G('g7q3','num','AD חוצה זווית במשולש ABC, ∢BAC = 84°. מה גודל ∢BAD?',42,'חוצה זווית מחלק את ∢BAC לשני חלקים שווים: 84 ÷ 2 = 42.',{unit:'°',hint:'חצי מהזווית.'})},
+  {t:'q',q:G('g7q4','num','AD תיכון במשולש ABC, BC = 13. מה אורך DC?',6.5,'D אמצע BC: 13 ÷ 2 = 6.5.',{hint:'חצי מהצלע.'})},
+  {t:'q',q:G('g7q5','num','AD גובה במשולש ABC, ∢B = 50°. מה גודל ∢BAD?',40,'במשולש ABD: ∢ADB = 90 (גובה), ∢B = 50, אז ∢BAD = 180 - 90 - 50 = 40. שילוב של "גובה" עם "סכום זוויות במשולש".',{unit:'°',hint:'הסתכלי על המשולש הקטן ABD. יש בו זווית של 90.'})},
+  {t:'q',q:G('g7q6','mc','במשולש קהה-זווית, הגובה לצלע שמול הזווית הקהה...',0,'במשולש קהה-זווית, הגובה אל הצלע הארוכה (שמול הזווית הקהה) נמצא בפנים. הגבהים אל שתי הצלעות האחרות נופלים בחוץ.',{opts:['נמצא בתוך המשולש','נופל מחוץ למשולש','הוא גם תיכון','לא קיים'],hint:'נסי בווידג\'ט: גררי את A רחוק הצידה ובחרי "גובה".'})},
+]},
+{ id:'g8', part:'geo', title:'כתיבת הוכחה', blurb:'נתון, צ"ל, טענה ונימוק: לסדר את השורות', steps:[
+  {t:'text',eyebrow:'המבנה שהמורה מצפה לו',html:'<ol style="padding-inline-start:20px;margin:0;display:grid;gap:4px"><li><b>נתון:</b> מעתיקים את מה שכתוב, בשפת הסימונים.</li><li><b>צ"ל</b> (צריך להוכיח / למצוא).</li><li><b>סרטוט</b> עם הסימונים.</li><li><b>טענות ממוספרות</b>, וליד כל טענה בסוגריים <b>הנימוק</b>.</li></ol><p class="rule">בנק הנימוקים מהנספח: זוויות קודקודיות שוות. סכום זוויות צמודות 180°. סכום זוויות במשולש 180°. השלם שווה לסכום חלקיו. כלל ההצבה. כלל המעבר. נתון. חוצה זווית / תיכון / גובה (ההגדרה).</p><p class="tip">כל שורה עונה על שתי שאלות: <b>מה</b> אני יודעת עכשיו, ו<b>למה</b>. אם אין "למה", זו לא שורה בהוכחה.</p>'},
+  {t:'proof',p:{id:'p1',given:'שני ישרים נחתכים. ∢1 = 40°. ∢1 ו-∢3 זו מול זו.',prove:'∢3 = 40°',fig:figX('2','1','4','3'),steps:[{c:'∢1 = 40°',r:'נתון'},{c:'∢1 = ∢3',r:'זוויות קודקודיות שוות זו לזו'},{c:'∢3 = 40°',r:'כלל ההצבה'}],hints:['הוכחה מתחילה תמיד ממה שנתון.','אחרי הנתון, צריך משפט שמקשר בין הזווית הידועה לזו שמחפשים.','השורה האחרונה היא תמיד מה שהיה צריך להוכיח.'],done:'שלוש שורות: נתון, משפט, הצבה. זה השלד של רוב ההוכחות במבחן.'}},
+  {t:'proof',p:{id:'p2',given:'∢AOE זווית שטוחה. DO חוצה את ∢COE, BO חוצה את ∢AOC. ∢COE = 72°.',prove:'∢3 (זווית BOC)',fig:figRays(),steps:[{c:'∢COE = 72°',r:'נתון'},{c:'∢AOC = 180° - 72° = 108°',r:'∢AOC ו-∢COE זוויות צמודות, סכומן 180°'},{c:'∢BOC = ∢AOB',r:'BO חוצה את ∢AOC (הגדרת חוצה זווית)'},{c:'∢BOC = 108° ÷ 2 = 54°',r:'השלם שווה לסכום חלקיו, ושני החלקים שווים'}],hints:['מתחילים מהמספר שנתון.','כדי להגיע ל-∢3 צריך קודם את הזווית הגדולה ∢AOC. איך מוצאים אותה מ-72?','לפני שמחשבים חצי, צריך להגיד למה שני החלקים שווים.','עכשיו אפשר לחלק.'],done:'זה תרגיל 5 מהדף. גם ∢1 = ∢2 = 36° (חצי מ-72) ו-∢4 = 54°.'}},
+  {t:'proof',p:{id:'p3',given:'במשולש ABC: ∢A = 50°, ∢B = 60°. הנקודות B, C, D על ישר אחד.',prove:'∢ACD (הזווית החיצונית ב-C)',fig:figTriLine('60°','?','','?',{ax:230}),steps:[{c:'∢A = 50°, ∢B = 60°',r:'נתון'},{c:'∢ACB = 180° - 50° - 60° = 70°',r:'סכום הזוויות במשולש 180°'},{c:'∢ACB + ∢ACD = 180°',r:'זוויות צמודות (B, C, D על ישר אחד)'},{c:'∢ACD = 180° - 70° = 110°',r:'כלל ההצבה'}],hints:['נתון ראשון.','עם שתי זוויות של משולש, מה המשפט הראשון שעולה?','עכשיו צריך לקשר את הזווית הפנימית ב-C לזווית החיצונית שלידה.','מציבים ומסיימים.'],done:'בדיקה מהירה: הזווית החיצונית שווה לסכום שתי הפנימיות הרחוקות, 50 + 60 = 110.'}},
+]},
+{ id:'a1', part:'alg', title:'חוקי חזקות', blurb:'שבעה חוקים, ופירוק לגורמים ראשוניים', steps:[
+  {t:'text',eyebrow:'החוקים',html:`<ul><li>כפל, אותו בסיס: ${M('a<sup>m</sup> · a<sup>n</sup> = a<sup>m+n</sup>')} (מחברים מעריכים)</li><li>חילוק, אותו בסיס: ${M('a<sup>m</sup> ÷ a<sup>n</sup> = a<sup>m-n</sup>')} (מחסרים)</li><li>חזקה של חזקה: ${M('(a<sup>m</sup>)<sup>n</sup> = a<sup>m·n</sup>')} (כופלים)</li><li>חזקה של מכפלה: ${M('(ab)<sup>n</sup> = a<sup>n</sup>b<sup>n</sup>')}</li><li>${M('a<sup>0</sup> = 1')}, ${M('a<sup>1</sup> = a')}</li><li>מעריך שלילי: ${M('a<sup>-n</sup> = 1 / a<sup>n</sup>')}</li><li>מספרים שונים עם אותו מעריך: ${M('2<sup>3</sup> · 5<sup>3</sup> = 10<sup>3</sup>')}</li></ul><p class="warn">שני בסיסים שונים לא מתחברים: ${M('7<sup>9</sup> · 2<sup>5</sup>')} נשאר כמו שהוא. מסדרים כל בסיס לחוד.</p><p class="tip">פירוק לגורמים ראשוניים: 12 = 2² · 3, 36 = 2² · 3², 100 = 2² · 5². בשבר עם מספרים גדולים, קודם מפרקים ואז מצמצמים חזקות.</p>`},
+  {t:'q',q:G('a1q1','mc',`פשטי: ${M('x<sup>4</sup> ÷ x<sup>2</sup>')}`,0,'חילוק באותו בסיס: מחסרים מעריכים, 4 - 2 = 2.',{opts:[M('x<sup>2</sup>'),M('x<sup>6</sup>'),M('x<sup>8</sup>'),M('1')],hint:'חילוק = חיסור מעריכים.'})},
+  {t:'q',q:G('a1q2','mc',`פשטי: ${M('2x<sup>3</sup> · y<sup>2</sup> · x<sup>2</sup>y<sup>3</sup>')}`,2,'x: 3 + 2 = 5. y: 2 + 3 = 5. המקדם 2 נשאר.',{opts:[M('2x<sup>6</sup>y<sup>6</sup>'),M('4x<sup>5</sup>y<sup>5</sup>'),M('2x<sup>5</sup>y<sup>5</sup>'),M('2x<sup>5</sup>y<sup>6</sup>')],hint:'כל אות בנפרד. מכפילים רק מקדמים.'})},
+  {t:'q',q:G('a1q3','mc',`פשטי: ${M('(2x)<sup>2</sup> · (-3x)')}`,1,'(2x)² = 4x². ואז 4x² · (-3x) = -12x³.',{opts:[M('-6x<sup>3</sup>'),M('-12x<sup>3</sup>'),M('-12x<sup>2</sup>'),M('12x<sup>3</sup>')],hint:'קודם החזקה חלה על ה-2 וגם על ה-x.'})},
+  {t:'q',q:G('a1q4','mc',`פשטי: ${M('(3ab)<sup>2</sup> · (-4ab)')}`,0,'(3ab)² = 9a²b². כפול -4ab: -36a³b³.',{opts:[M('-36a<sup>3</sup>b<sup>3</sup>'),M('-12a<sup>3</sup>b<sup>3</sup>'),M('-36a<sup>2</sup>b<sup>2</sup>'),M('36a<sup>3</sup>b<sup>3</sup>')],hint:'3² = 9, ואז 9 · (-4).'})},
+  {t:'q',q:G('a1q5','num',`חשבי: ${M('(7<sup>9</sup> · 2<sup>5</sup> · 7<sup>3</sup> · 2<sup>8</sup>) ÷ (7<sup>10</sup> · 7 · 2<sup>10</sup>)')}`,56,'למעלה: 7¹² · 2¹³. למטה: 7¹¹ · 2¹⁰. נשאר 7¹ · 2³ = 7 · 8 = 56. (תרגיל 80.)',{hint:'אספי את כל ה-7 למעלה ולמטה, ואת כל ה-2.'})},
+  {t:'q',q:G('a1q6','mc',`פשטי: ${M('(2<sup>6</sup> · 3<sup>12</sup> · 2<sup>5</sup>) ÷ (3<sup>4</sup> · 2<sup>2</sup> · 3<sup>5</sup>)')}`,1,'2: 6 + 5 - 2 = 9. 3: 12 - 4 - 5 = 3. תוצאה 2⁹ · 3³. (תרגיל 78.)',{opts:[M('2<sup>9</sup> · 3<sup>9</sup>'),M('2<sup>9</sup> · 3<sup>3</sup>'),M('6<sup>12</sup>'),M('2<sup>3</sup> · 3<sup>3</sup>')],hint:'כל בסיס לחוד.'})},
+  {t:'q',q:G('a1q7','mc',`פשטי: ${M('2a<sup>7</sup> · 5a<sup>8</sup> ÷ (10a<sup>14</sup>)')}`,0,'למעלה 10a¹⁵. חלקי 10a¹⁴: a¹ = a. (תרגיל 81.)',{opts:[M('a'),M('a<sup>2</sup>'),M('10a'),M('1')],hint:'7 + 8 = 15, ואז 15 - 14.'})},
+  {t:'q',q:G('a1q8','mc',`כתבי את 72 כמכפלת גורמים ראשוניים:`,2,'72 = 8 · 9 = 2³ · 3².',{opts:[M('8 · 9'),M('2<sup>2</sup> · 3<sup>3</sup>'),M('2<sup>3</sup> · 3<sup>2</sup>'),M('6<sup>2</sup> · 2')],hint:'72 = 8 · 9. ועכשיו 8 ו-9 בחזקות.'})},
+]},
+{ id:'a2', part:'alg', title:'נוסחאות הכפל המקוצר', blurb:'שלוש נוסחאות, ולמה הן נכונות', steps:[
+  {t:'widget',w:'sqModel',eyebrow:'נסי בעצמך',h:'למה (a+b)² זה לא a²+b²'},
+  {t:'text',eyebrow:'שלוש הנוסחאות',html:`<p class="rule">${M('(a + b)<sup>2</sup> = a<sup>2</sup> + 2ab + b<sup>2</sup>')}<br>${M('(a - b)<sup>2</sup> = a<sup>2</sup> - 2ab + b<sup>2</sup>')}<br>${M('(a - b)(a + b) = a<sup>2</sup> - b<sup>2</sup>')}</p><ul><li>בריבוע של סכום/הפרש: האיבר האמצעי הוא תמיד <b>2 כפול הראשון כפול השני</b>, והסימן שלו כמו בסוגריים. האיבר האחרון תמיד חיובי.</li><li>הפרש ריבועים: האמצע נעלם. (x - 3)(x + 3) = x² - 9.</li><li>מקדם לפני x: (2x - 6)² = (2x)² - 2·2x·6 + 36 = 4x² - 24x + 36. ה-2 בריבוע נהיה 4.</li></ul>`},
+  {t:'q',q:G('a2q1','mc',`${M('(x + 6)<sup>2</sup>')} =`,2,'x² + 2·x·6 + 36 = x² + 12x + 36.',{opts:[M('x<sup>2</sup> + 36'),M('x<sup>2</sup> + 6x + 36'),M('x<sup>2</sup> + 12x + 36'),M('x<sup>2</sup> + 12x + 12')],hint:'האמצע: 2 · x · 6.'})},
+  {t:'q',q:G('a2q2','mc',`${M('(x - 10)<sup>2</sup>')} =`,0,'x² - 20x + 100. האחרון חיובי (מינוס כפול מינוס).',{opts:[M('x<sup>2</sup> - 20x + 100'),M('x<sup>2</sup> - 20x - 100'),M('x<sup>2</sup> - 100'),M('x<sup>2</sup> + 20x + 100')],hint:'האיבר האחרון: (-10)² = ?'})},
+  {t:'q',q:G('a2q3','mc',`${M('(3x - 10)(3x + 10)')} =`,1,'הפרש ריבועים: (3x)² - 10² = 9x² - 100.',{opts:[M('3x<sup>2</sup> - 100'),M('9x<sup>2</sup> - 100'),M('9x<sup>2</sup> - 60x - 100'),M('9x<sup>2</sup> + 100')],hint:'זוג (a-b)(a+b). ו-(3x)² = ?'})},
+  {t:'q',q:G('a2q4','mc',`${M('(2x - 6)<sup>2</sup>')} =`,3,'(2x)² - 2·2x·6 + 36 = 4x² - 24x + 36.',{opts:[M('4x<sup>2</sup> - 36'),M('2x<sup>2</sup> - 24x + 36'),M('4x<sup>2</sup> - 12x + 36'),M('4x<sup>2</sup> - 24x + 36')],hint:'האמצע: 2 · 2x · 6.'})},
+  {t:'q',q:G('a2q5','mc',`השלימי: ${M('100x<sup>2</sup> - ___ + 121 = (___ - ___)<sup>2</sup>')}`,0,'שורש של 100x² הוא 10x, שורש של 121 הוא 11. האמצע: 2 · 10x · 11 = 220x. (10x - 11)².',{opts:[M('220x ; 10x - 11'),M('110x ; 10x - 11'),M('220x ; 50x - 11'),M('21x ; 10x - 11')],hint:'קודם שורשים של הקצוות, ואז 2 כפול כפול.'})},
+  {t:'q',q:G('a2q6','num',`פתרי: ${M('(x + 8)(x - 7) = (x - 2)<sup>2</sup>')}. מהו x?`,12,'שמאל: x² + x - 56. ימין: x² - 4x + 4. ה-x² מתבטל: x - 56 = -4x + 4, 5x = 60, x = 12. (תרגיל 51.)',{hint:'פתחי את שני הצדדים. ה-x² ייעלם.'})},
+  {t:'q',q:G('a2q7','num',`פתרי: ${M('4x<sup>2</sup> - (2x - 1)<sup>2</sup> = 3(2x + 1)')}. מהו x?`,-2,'(2x-1)² = 4x² - 4x + 1. שמאל: 4x² - 4x² + 4x - 1 = 4x - 1. ימין: 6x + 3. אז -2x = 4, x = -2. (תרגיל 53.) שימי לב למינוס לפני הסוגריים: הוא הופך את כל שלושת האיברים.',{hint:'מינוס לפני סוגריים הופך את כל הסימנים בפנים.'})},
+  {t:'q',q:G('a2q8','num',`פתרי: ${M('(3x + 1)<sup>2</sup> - (3x + 1)(3x - 1) = -4')}. מהו x?`,-1,'9x² + 6x + 1 - (9x² - 1) = 6x + 2. אז 6x + 2 = -4, x = -1. (תרגיל 54.)',{hint:'השני הוא הפרש ריבועים: 9x² - 1. ואז מינוס עליו.'})},
+]},
+{ id:'a3', part:'alg', title:'פירוק לגורמים', blurb:'גורם משותף, נוסחאות כפל מקוצר, טרינום', steps:[
+  {t:'text',eyebrow:'הסדר שתמיד עובד',html:`<ol style="padding-inline-start:20px;margin:0;display:grid;gap:4px"><li><b>גורם משותף</b> קודם. ${M('6a<sup>2</sup> - 9a = 3a(2a - 3)')}. בודקים בפתיחה חזרה.</li><li><b>שני איברים עם מינוס</b>, שניהם ריבועים: הפרש ריבועים. ${M('x<sup>2</sup> - 9 = (x - 3)(x + 3)')}.</li><li><b>שלושה איברים</b>, הקצוות ריבועים והאמצע הוא 2 כפול כפול: ריבוע של סכום/הפרש. ${M('x<sup>2</sup> + 20x + 100 = (x + 10)<sup>2</sup>')}.</li><li><b>שלושה איברים</b> אחרים (טרינום): מחפשים שני מספרים שמכפלתם האיבר החופשי וסכומם מקדם ה-x. ${M('x<sup>2</sup> + 5x + 6 = (x + 2)(x + 3)')}.</li><li>סוגריים משותפים: ${M('4x(x - 1) - 6(1 - x) = 4x(x - 1) + 6(x - 1) = (x - 1)(4x + 6)')}.</li></ol>`},
+  {t:'q',q:G('a3q1','mc',`פרקי: ${M('2x<sup>2</sup> - 4x')}`,1,'הגורם המשותף הגדול ביותר: 2x. נשאר (x - 2).',{opts:[M('2(x<sup>2</sup> - 2x)'),M('2x(x - 2)'),M('x(2x - 4)'),M('2x(x - 4)')],hint:'מה הכי גדול שמחלק גם 2x² וגם 4x?'})},
+  {t:'q',q:G('a3q2','mc',`פרקי: ${M('15xy - 25ay')}`,0,'משותף: 5y. נשאר 3x - 5a.',{opts:[M('5y(3x - 5a)'),M('5(3xy - 5ay)'),M('5y(3x - 5)'),M('y(15x - 25a)')],hint:'גם המספר וגם האות המשותפת.'})},
+  {t:'q',q:G('a3q3','mc',`פרקי: ${M('4x<sup>2</sup> - 36')}`,2,'הפרש ריבועים: (2x)² - 6² = (2x - 6)(2x + 6). (אפשר גם 4(x-3)(x+3), אותו דבר.)',{opts:[M('(4x - 6)(4x + 6)'),M('(2x - 36)(2x + 1)'),M('(2x - 6)(2x + 6)'),M('(2x - 6)<sup>2</sup>')],hint:'שורש של 4x² ושורש של 36.'})},
+  {t:'q',q:G('a3q4','mc',`פרקי: ${M('x<sup>2</sup> + 20x + 100')}`,1,'10² = 100 ו-2·x·10 = 20x. אז (x + 10)².',{opts:[M('(x + 10)(x - 10)'),M('(x + 10)<sup>2</sup>'),M('(x + 20)(x + 5)'),M('(x + 50)<sup>2</sup>')],hint:'בדקי אם האמצע הוא 2 כפול השורשים.'})},
+  {t:'q',q:G('a3q5','mc',`פרקי: ${M('49 - 14x + x<sup>2</sup>')}`,0,'(x - 7)² = x² - 14x + 49. הסדר של האיברים לא משנה.',{opts:[M('(x - 7)<sup>2</sup>'),M('(x + 7)<sup>2</sup>'),M('(7 - x)(7 + x)'),M('(x - 14)(x + 7)')],hint:'7² = 49, ו-2 · 7 = 14. איזה סימן?'})},
+  {t:'q',q:G('a3q6','mc',`פרקי: ${M('81x<sup>2</sup> + 36x + 4')}`,3,'(9x)² = 81x², 2² = 4, 2·9x·2 = 36x. אז (9x + 2)².',{opts:[M('(9x + 4)<sup>2</sup>'),M('(81x + 2)<sup>2</sup>'),M('(9x + 2)(9x - 2)'),M('(9x + 2)<sup>2</sup>')],hint:'שורש 81x² = 9x.'})},
+  {t:'q',q:G('a3q7','mc',`פרקי: ${M('x<sup>2</sup> - 6x + 5')}`,0,'שני מספרים: מכפלה 5, סכום -6: זה -1 ו-5-. (x - 1)(x - 5).',{opts:[M('(x - 1)(x - 5)'),M('(x + 1)(x + 5)'),M('(x - 6)(x + 1)'),M('(x - 2)(x - 3)')],hint:'מכפלה 5, סכום -6.'})},
+  {t:'q',q:G('a3q8','mc',`פרקי: ${M('x<sup>2</sup> - 9x + 20')}`,2,'מכפלה 20, סכום -9: -4 ו-5-. (x - 4)(x - 5).',{opts:[M('(x - 10)(x - 2)'),M('(x + 4)(x + 5)'),M('(x - 4)(x - 5)'),M('(x - 20)(x + 1)')],hint:'מכפלה 20, סכום -9.'})},
+  {t:'q',q:G('a3q9','mc',`פרקי: ${M('7a(a - 2) - 14(a - 2)')}`,1,'(a - 2) משותף: (a - 2)(7a - 14), ועוד גורם משותף 7: 7(a - 2)(a - 2) = 7(a - 2)².',{opts:[M('(a - 2)(7a + 14)'),M('7(a - 2)<sup>2</sup>'),M('7a(a - 2)<sup>2</sup>'),M('(a - 2)(a - 14)')],hint:'הסוגריים (a - 2) חוזרים פעמיים. הם הגורם המשותף.'})},
+  {t:'q',q:G('a3q10','mc',`השלימי: ${M('x<sup>2</sup> - ___ = (x + 13)(x - 13)')}`,1,'13² = 169.',{opts:['13','169','26','139'],hint:'הפרש ריבועים.'})},
+]},
+{ id:'a4', part:'alg', title:'בעיות מילוליות הנדסיות', blurb:'שטח מנוקד: צורה גדולה פחות החור', steps:[
+  {t:'widget',w:'shadedSq',eyebrow:'נסי בעצמך',h:'ריבוע בתוך ריבוע (עמוד 379, תרגיל 10)'},
+  {t:'text',eyebrow:'השיטה',html:`<ol style="padding-inline-start:20px;margin:0;display:grid;gap:4px"><li>ביטוי לשטח הצורה הגדולה (מלבן: אורך × רוחב. ריבוע: צלע²). פותחים עם נוסחת כפל מקוצר.</li><li>ביטוי לשטח החור (או החורים). אם יש שני ריבועים זהים: כופלים ב-2.</li><li>מנוקד = גדול - חור. כשמחסרים ביטוי עם כמה איברים, שמים אותו בסוגריים והופכים את כל הסימנים.</li><li>כינוס איברים.</li><li>הצבה: מציבים את x ומחשבים. כדאי לבדוק גם ישירות עם המידות.</li></ol><p class="warn">"האם ייתכן ש-x = 2?" שואלת האם המידות הגיוניות: צלע חייבת להיות חיובית, והחור חייב להיכנס בתוך הצורה (קטן ממנה).</p>`},
+  {t:'q',q:G('a4q1','mc','עמוד 376, תרגיל 18: מלבן גדול 6x+3 על 6x-3, ובתוכו מלבן 4x+1 על 2. הביטוי לשטח המנוקד:',1,'גדול: (6x+3)(6x-3) = 36x² - 9. קטן: 2(4x+1) = 8x + 2. מנוקד: 36x² - 9 - 8x - 2 = 36x² - 8x - 11.',{fig:figRect(300,140,{w:'6x + 3',h:'6x - 3'},{x:120,y:85,w:150,h:30,l:'4x + 1'}),opts:[M('36x<sup>2</sup> - 9 - 8x + 2'),M('36x<sup>2</sup> - 8x - 11'),M('36x<sup>2</sup> - 8x - 7'),M('12x<sup>2</sup> - 8x - 11')],hint:'הפרש ריבועים לגדול. ואחרי זה: מינוס על (8x + 2) הופך את שני הסימנים.'})},
+  {t:'q',q:G('a4q2','num','באותו תרגיל, הציבי x = 4 וחשבי את השטח המנוקד.',533,'36·16 - 8·4 - 11 = 576 - 32 - 11 = 533. בדיקה ישירה: 27 × 21 = 567, פחות 17 × 2 = 34, נותן 533.',{hint:'הציבי בביטוי המכונס, ואז בדקי עם המידות: 27 על 21, חור 17 על 2.'})},
+  {t:'q',q:G('a4q3','mc','עמוד 376, תרגיל 19: מלבן 3x+4 על 3x-4, ובתוכו שני ריבועים שצלעם x. הביטוי לשטח המנוקד:',0,'(3x+4)(3x-4) = 9x² - 16. שני ריבועים: 2x². מנוקד: 7x² - 16.',{opts:[M('7x<sup>2</sup> - 16'),M('9x<sup>2</sup> - 16 - x<sup>2</sup>'),M('8x<sup>2</sup> - 16'),M('7x<sup>2</sup> + 16')],hint:'יש שני ריבועים, לא אחד.'})},
+  {t:'q',q:G('a4q4','mc','באותו תרגיל: האם ייתכן ש-x = 2?',1,'כש-x = 2 גובה המלבן 3·2 - 4 = 2, בדיוק כמו צלע הריבוע. בסרטוט הריבועים נמוכים מהמלבן, כלומר x < 3x - 4, ומכאן x > 2. אז x = 2 לא מתאים.',{opts:['כן, כי כל המידות חיוביות','לא, כי אז הריבוע בגובה המלבן בדיוק, והסרטוט מראה שהוא נמוך ממנו','לא, כי 3x - 4 יוצא שלילי','כן, כי השטח יוצא 12'],hint:'חשבי את גובה המלבן כש-x = 2, והשווי לצלע הריבוע.'})},
+  {t:'q',q:G('a4q5','num','עמוד 379, תרגיל 10: ריבוע 2x+4 ובתוכו ריבוע x+2. הציבי x = 3 ומצאי את השטח המנוקד.',75,'חיצוני (2x+4)² = 4x² + 16x + 16. פנימי (x+2)² = x² + 4x + 4. מנוקד 3x² + 12x + 12. ב-x = 3: 27 + 36 + 12 = 75. בדיקה: 10² - 5² = 100 - 25 = 75.',{hint:'בדיקה: צלע חיצונית 10, פנימית 5.'})},
+  {t:'q',q:G('a4q6','mc','דף תרגול, תרגיל 5: מלבן 2x+3 על 2x-3, בתוכו ריבוע שצלעו x. האם ייתכן שצלע הריבוע היא 1 ס"מ?',2,'אם x = 1 אז 2x - 3 = -1, אורך שלילי. לא ייתכן. (צריך 2x - 3 > 0, כלומר x > 1.5, ובנוסף הריבוע חייב להיכנס: x < 2x - 3, כלומר x > 3.)',{opts:['כן, כי השטח 3x² - 9 חיובי','כן, כי x = 1 הוא מספר חיובי','לא, כי אז צלע המלבן 2x - 3 שלילית','לא, כי הריבוע גדול מהמלבן'],hint:'הציבי x = 1 בכל מידה בסרטוט.'})},
+  {t:'q',q:G('a4q7','num','דף תרגול, תרגיל 6: מלבן 3x+4 על 3x-4, בתוכו מלבן x+1 על x. הציבי x = 2 וחשבי את השטח המנוקד.',14,'9x² - 16 - (x² + x) = 8x² - x - 16. ב-x = 2: 32 - 2 - 16 = 14. בדיקה: 10 × 2 = 20 פחות 3 × 2 = 6.',{hint:'בדיקה: המלבן הגדול 10 על 2.'})},
+  {t:'q',q:G('a4q8','num','דף תרגול, תרגיל 18: מלבן x על x+5. מקטינים את הצלע הארוכה ב-3. בכמה להגדיל את הקצרה כדי לקבל ריבוע?',2,'הארוכה נהיית x + 2. כדי שהקצרה x תהיה גם x + 2, מגדילים ב-2.',{hint:'x + 5 - 3 = ?'})},
+  {t:'q',q:G('a4q9','num','המשך: שטח הריבוע גדול ב-1 סמ"ר משטח המלבן המקורי. מה צלע הריבוע?',5,'(x+2)² = x(x+5) + 1. x² + 4x + 4 = x² + 5x + 1. 3 = x. צלע הריבוע x + 2 = 5. בדיקה: 25 לעומת 3 × 8 = 24.',{hint:'משוואה: (x+2)² = x(x+5) + 1. ה-x² מתבטל.'})},
+]},
+{ id:'a5', part:'alg', title:'משוואות עם כפל מקוצר', blurb:'פותחים, ה-x² נעלם, ונשארת משוואה פשוטה', steps:[
+  {t:'text',eyebrow:'השיטה',html:`<ol style="padding-inline-start:20px;margin:0;display:grid;gap:4px"><li>פותחים את כל הסוגריים בשני הצדדים (נוסחאות כפל מקוצר או כפל איבר באיבר).</li><li>בכל המשוואות האלה ה-x² מתבטל. אם לא, יש טעות בפתיחה.</li><li>מעבירים אגפים ופותרים.</li><li>מציבים חזרה במשוואה המקורית לבדיקה.</li></ol><p class="warn">מינוס לפני סוגריים: ${M('-(2x - 1)<sup>2</sup> = -(4x<sup>2</sup> - 4x + 1) = -4x<sup>2</sup> + 4x - 1')}. כל הסימנים מתהפכים.</p>`},
+  {t:'q',q:G('a5q1','num',`${M('x(6 - x) = -30 - x<sup>2</sup>')}`,-5,'6x - x² = -30 - x². מוסיפים x² לשני הצדדים: 6x = -30, x = -5. (תרגיל 45.)',{hint:'פתחי את השמאל. ה-x² יתבטל.'})},
+  {t:'q',q:G('a5q2','num',`${M('x(2x - 3) = 2(x<sup>2</sup> - 6)')}`,4,'2x² - 3x = 2x² - 12, אז -3x = -12, x = 4. (תרגיל 46.)',{hint:'2x² בשני הצדדים.'})},
+  {t:'q',q:G('a5q3','num',`${M('x(3x - 2) - 14 = (x - 3) · 3x')}`,2,'3x² - 2x - 14 = 3x² - 9x, אז 7x = 14, x = 2. (תרגיל 47.)',{hint:'ימין: (x-3)·3x = 3x² - 9x.'})},
+  {t:'q',q:G('a5q4','num',`${M('3x(2x - 5) = 6(x<sup>2</sup> - 3x + 2)')}`,4,'6x² - 15x = 6x² - 18x + 12, אז 3x = 12, x = 4. (תרגיל 48.)',{hint:'פתחי בזהירות את 6 כפול כל איבר.'})},
+  {t:'q',q:G('a5q5','num',`${M('(x - 2)(x + 3) = x(x + 2)')}`,-6,'x² + x - 6 = x² + 2x, אז -6 = x. (תרגיל 49.)',{hint:'(x-2)(x+3) = x² + 3x - 2x - 6.'})},
+  {t:'q',q:G('a5q6','num',`${M('(x + 5)(x - 3) = (x + 7)x')}`,-3,'x² + 2x - 15 = x² + 7x, אז -15 = 5x, x = -3. (תרגיל 50.)',{hint:'שמאל: x² + 2x - 15.'})},
+  {t:'q',q:G('a5q7','num',`${M('(2x - 3)(8x - 5) = (4x - 3)<sup>2</sup> - 4')}`,1,'שמאל: 16x² - 10x - 24x + 15 = 16x² - 34x + 15. ימין: 16x² - 24x + 9 - 4 = 16x² - 24x + 5. אז -34x + 15 = -24x + 5, 10 = 10x, x = 1. (תרגיל 52.)',{hint:'ארבעה מכפלות בשמאל. ריבוע של הפרש בימין.'})},
+]},
+];
+
+/* ---------- views ---------- */
+const view=$('#view'), crumb=$('#crumb'), nextBtn=$('#nextBtn');
+const examDate=new Date(2026,9,29);
+function lessonQs(L){ return L.steps.filter(s=>s.t==='q').map(s=>s.q).concat(L.steps.filter(s=>s.t==='proof').map(s=>({id:s.p.id}))); }
+function progressOf(L){ const qs=lessonQs(L); const done=qs.filter(q=>store.q[q.id]===true).length; const retry=qs.filter(q=>store.q[q.id]==='retry').length; return {done,retry,total:qs.length}; }
+
+function renderHome(){
+  crumb.textContent=''; nextBtn.hidden=true; view.innerHTML='';
+  const days=Math.round((examDate-new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()))/86400000);
+  const when= days>1?`עוד ${days} ימים`: days===1?'מחר':days===0?'היום':'אחרי המבחן';
+  view.append(h('div',{class:'hero'},
+    h('div',{class:'kicker'},'מתמטיקה, ט\'7, מבחן אמצע מחצית א\''),
+    h('h1',{},'נינה, זה המרתון שלך'),
+    h('p',{},'כל נושא מתחיל במשהו שאפשר לגרור ולראות, ממשיך בכלל אחד קצר, ונגמר בתרגילים מהדפים שלך עם הסבר על כל תשובה. התחילי בגאומטריה, זה הרוב.'),
+    h('div',{class:'count'},`המבחן ביום שלישי 29.10, ${when}. 90 דקות.`)));
+  const section=(title,tag,items)=>{ view.append(h('div',{class:'sect'},h('h2',{},title),h('span',{class:'tag'},tag))); const g=h('div',{class:'grid'}); items.forEach((L,i)=>{ const p=progressOf(L); const pct=p.total?Math.round(p.done/p.total*100):0; g.append(h('button',{class:'card'+(L.part==='geo'?' main':''),type:'button',onclick:()=>go(L.id)},h('span',{class:'n'},`${i+1} · ${p.done}/${p.total} ישבו${p.retry?`, ${p.retry} לחזור`:''}`),h('h3',{},L.title),h('span',{class:'blurb'},L.blurb),h('span',{class:'bar'},h('i',{style:`width:${pct}%`})))); }); view.append(g); };
+  section('חשיבה גאומטרית','הדגש של המבחן, ושל האפליקציה',LESSONS.filter(L=>L.part==='geo'));
+  section('אוריינות אלגברית','חזקות, כפל מקוצר, פירוק, בעיות הנדסיות',LESSONS.filter(L=>L.part==='alg'));
+  view.append(h('div',{class:'sect'},h('h2',{},'מבחן מדומה'),h('span',{class:'tag'},'12 שאלות, בלי רמזים, סיכום בסוף')));
+  const g=h('div',{class:'grid'}); g.append(h('button',{class:'card test',type:'button',onclick:()=>renderTest()},h('h3',{},'להתחיל מבחן מדומה'),h('span',{class:'blurb'},'שאלות מעורבות מכל הנושאים. בסוף: מה ישב ומה כדאי לחזור עליו.'))); view.append(g);
+  view.append(h('div',{class:'row'},h('button',{class:'btn',type:'button',onclick:()=>{ store.q={}; save(); renderHome(); }},'לאפס התקדמות')));
+}
+
+function go(id){ location.hash=id; }
+function renderLesson(L){
+  crumb.textContent=L.title; view.innerHTML=''; const idx=LESSONS.indexOf(L); const nxt=LESSONS[idx+1];
+  nextBtn.hidden=!nxt; if(nxt) nextBtn.onclick=()=>go(nxt.id);
+  const wrap=h('div',{class:'lesson'});
+  wrap.append(h('div',{class:'block lead'},h('div',{class:'eyebrow'},L.part==='geo'?'חשיבה גאומטרית':'אוריינות אלגברית'),h('h2',{},L.title),h('p',{style:'color:var(--muted)'},L.blurb)));
+  let qn=0;
+  for(const s of L.steps){
+    if(s.t==='text'){ wrap.append(h('div',{class:'block'},s.eyebrow?h('div',{class:'eyebrow'},s.eyebrow):null,h('div',{html:s.html}))); }
+    else if(s.t==='widget'){ const b=h('div',{class:'block explore'},h('div',{class:'eyebrow'},s.eyebrow||'נסי בעצמך'),s.h?h('h3',{},s.h):null); widgets[s.w](b); wrap.append(b); }
+    else if(s.t==='q'){ qn++; const b=h('div',{class:'block q'},h('div',{class:'eyebrow'},`תרגיל ${qn}`)); renderQ(b,s.q); wrap.append(b); }
+    else if(s.t==='proof'){ const b=h('div',{class:'block q'},h('div',{class:'eyebrow'},'הוכחה: סדרי את השורות')); proofBuilder(b,s.p); wrap.append(b); }
+  }
+  wrap.append(h('div',{class:'row'},h('button',{class:'btn',type:'button',onclick:()=>go('')},'חזרה לבית'),nxt?h('button',{class:'btn primary',type:'button',onclick:()=>go(nxt.id)},'לנושא הבא: '+nxt.title):null));
+  view.append(wrap); window.scrollTo(0,0);
+}
+
+function renderTest(){
+  location.hash='test'; crumb.textContent='מבחן מדומה'; nextBtn.hidden=true; view.innerHTML='';
+  const pool=[]; for(const L of LESSONS) for(const s of L.steps) if(s.t==='q') pool.push({q:s.q,L});
+  const geo=shuffle(pool.filter(p=>p.L.part==='geo')).slice(0,8), alg=shuffle(pool.filter(p=>p.L.part==='alg')).slice(0,4);
+  const picked=shuffle(geo.concat(alg)); const answers={};
+  const start=Date.now(); const wrap=h('div',{class:'lesson'});
+  wrap.append(h('div',{class:'block lead'},h('h2',{},'מבחן מדומה'),h('p',{style:'color:var(--muted)'},'12 שאלות, 8 בגאומטריה ו-4 באלגברה. אין רמזים ואין בדיקה עד הסוף. אפשר לשנות תשובה לפני ההגשה.')));
+  picked.forEach((p,i)=>{ const b=h('div',{class:'block q'},h('div',{class:'eyebrow'},`שאלה ${i+1} · ${p.L.title}`)); renderQ(b,p.q,{silent:true,onAnswer:(ok)=>{answers[p.q.id]=ok;}}); wrap.append(b); });
+  const res=h('div');
+  wrap.append(h('div',{class:'row'},h('button',{class:'btn primary',type:'button',onclick:()=>{
+    const n=Object.keys(answers).length; if(n<picked.length){ res.innerHTML=`<div class="fb hint">ענית על ${n} מתוך ${picked.length}. אפשר להגיש בכל זאת: לחצי שוב.</div>`; if(res.dataset.warned) {} else { res.dataset.warned='1'; return; } }
+    const ok=picked.filter(p=>answers[p.q.id]===true).length; const mins=Math.round((Date.now()-start)/60000);
+    const byL={}; picked.forEach(p=>{ byL[p.L.id]=byL[p.L.id]||{L:p.L,ok:0,n:0}; byL[p.L.id].n++; if(answers[p.q.id]===true) byL[p.L.id].ok++; });
+    const sum=h('div',{class:'block summary'},h('div',{class:'big'},`${ok} / ${picked.length}`),h('p',{},`${mins} דקות. ${ok>=10?'מצוין, את מוכנה. חזרי רק על מה שמסומן.':ok>=7?'בסיס טוב. הנושאים שמסומנים למטה שווים עוד סבב אחד.':'עוד לא שם, וזה בסדר, יש זמן. התחילי מהנושא הראשון ברשימה ועברי עליו מההתחלה.'}`));
+    Object.values(byL).sort((a,b)=>(a.ok/a.n)-(b.ok/b.n)).forEach(r=>{ sum.append(h('div',{class:'topic'},h('span',{},`${r.L.title}: ${r.ok}/${r.n}`),h('button',{class:'btn'+(r.ok<r.n?' primary':''),type:'button',onclick:()=>go(r.L.id)},r.ok<r.n?'לחזור על הנושא':'ישב'))); });
+    picked.forEach((p,i)=>{ if(answers[p.q.id]!==true){ sum.append(h('div',{class:'fb no',html:`<b>שאלה ${i+1}:</b> ${p.q.q}<br>התשובה: ${p.q.kind==='mc'?p.q.opts[p.q.a]:M(p.q.a)+(p.q.unit||'')}. ${p.q.why}`})); } });
+    res.innerHTML=''; res.append(sum); sum.scrollIntoView({behavior:'smooth'});
+  }},'הגישי את המבחן'),h('button',{class:'btn',type:'button',onclick:()=>go('')},'ביטול')),res);
+  view.append(wrap); window.scrollTo(0,0);
+}
+
+function route(){ const id=location.hash.replace('#',''); if(id==='test') return renderTest(); const L=LESSONS.find(l=>l.id===id); if(L) renderLesson(L); else renderHome(); }
+$('#homeBtn').onclick=()=>go('');
+window.addEventListener('hashchange',route);
+route();
+</script>
