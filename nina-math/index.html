@@ -563,7 +563,7 @@ function renderHome(){
     h('div',{class:'kicker'},'מתמטיקה, ט\'7, מבחן אמצע מחצית א\''),
     h('h1',{},'נינה, זה המרתון שלך'),
     h('p',{},'בכל נושא: קודם משחקים עם ציור. אחר כך כלל אחד קצר. ואז תרגילים, ועל כל תשובה יש הסבר. כדאי להתחיל בגאומטריה.'),
-    h('div',{class:'count'},`המבחן ביום שלישי 29.10, ${when}. 90 דקות.`)));
+    h('div',{class:'count'},`המבחן ביום חמישי 29.10, ${when}. 90 דקות.`)));
   const section=(title,tag,items)=>{ view.append(h('div',{class:'sect'},h('h2',{},title),h('span',{class:'tag'},tag))); const g=h('div',{class:'grid'}); items.forEach((L,i)=>{ const p=progressOf(L); const pct=p.total?Math.round(p.done/p.total*100):0; g.append(h('button',{class:'card'+(L.part==='geo'?' main':''),type:'button',onclick:()=>go(L.id)},h('span',{class:'n'},`${i+1} · ${p.done}/${p.total} ישבו${p.retry?`, ${p.retry} לחזור`:''}`),h('h3',{},L.title),h('span',{class:'blurb'},L.blurb),h('span',{class:'bar'},h('i',{style:`width:${pct}%`})))); }); view.append(g); };
   section('חשיבה גאומטרית','רוב המבחן',LESSONS.filter(L=>L.part==='geo'));
   section('אוריינות אלגברית','חזקות, כפל מקוצר, פירוק, בעיות הנדסיות',LESSONS.filter(L=>L.part==='alg'));
