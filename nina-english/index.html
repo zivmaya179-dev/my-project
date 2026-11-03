@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>האנגלית של נינה</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Secular+One&display=swap">
+<style>
+/* Layout: a single ruled-notebook column, one screen at a time, thumb-sized buttons at the bottom of each card */
+:root{
+  --paper:#fbfaff; --line:#e3e1f4; --ink:#26213f; --muted:#6b6590;
+  --violet:#6b3fd1; --violet-soft:#efe8ff; --pink:#e0457b; --pink-soft:#ffe6ef;
+  --teal:#13897c; --teal-soft:#dff5f1; --card:#ffffff; --bad:#c62f3a; --bad-soft:#fde7e8;
+  --hl:#ffd9e7;
+  --display:"Secular One","Assistant",system-ui,sans-serif;
+  --body:"Assistant",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#16131f; --line:#2a2540; --ink:#ece8ff; --muted:#a59fc6;
+  --violet:#a98bff; --violet-soft:#2a2147; --pink:#ff7aa6; --pink-soft:#3a1f2c;
+  --teal:#4fd1bf; --teal-soft:#13302c; --card:#1f1b2c; --bad:#ff7b84; --bad-soft:#3a1d22; --hl:#5a2a40;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#16131f; --line:#2a2540; --ink:#ece8ff; --muted:#a59fc6;
+  --violet:#a98bff; --violet-soft:#2a2147; --pink:#ff7aa6; --pink-soft:#3a1f2c;
+  --teal:#4fd1bf; --teal-soft:#13302c; --card:#1f1b2c; --bad:#ff7b84; --bad-soft:#3a1d22; --hl:#5a2a40;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html{direction:rtl}
+body{direction:rtl;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.6;
+  background-image:repeating-linear-gradient(to bottom,transparent 0 31px,var(--line) 31px 32px);}
+.wrap{max-width:640px;margin:0 auto;padding-block:16px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.25;text-wrap:balance;margin:0}
+h1{font-size:2rem;color:var(--violet)}
+h2{font-size:1.55rem;color:var(--violet)}
+h3{font-size:1.2rem}
+p{margin:0}
+.en{direction:ltr;unicode-bidi:isolate;font-weight:700}
+.stack{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:18px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.back{background:none;border:none;color:var(--violet);font:700 1rem var(--body);padding:8px 0;cursor:pointer}
+.hello p{color:var(--muted)}
+.mark{background:linear-gradient(transparent 55%,var(--hl) 55%);padding:0 2px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{display:flex;flex-direction:column;gap:2px;text-align:right;background:var(--card);border:2px solid var(--line);
+  border-radius:16px;padding:14px;cursor:pointer;font:inherit;color:inherit;min-width:0}
+.tile:hover,.tile:focus-visible{border-color:var(--violet)}
+.tile b{font-size:1.05rem}
+.tile small{color:var(--muted);font-size:.85rem;direction:ltr;text-align:right}
+.tile .best{color:var(--teal);font-weight:700;font-size:.85rem}
+.tile.wide{grid-column:1/-1;background:var(--violet);border-color:var(--violet);color:#fff}
+.tile.wide small,.tile.wide .best{color:#fff}
+.sec-label{font-weight:800;font-size:.85rem;letter-spacing:.04em;color:var(--pink)}
+.ex{direction:ltr;text-align:left;font-size:1.15rem;background:var(--violet-soft);border-radius:12px;padding:10px 14px;line-height:1.5}
+.ex .s{color:var(--pink);font-weight:800}
+.ex .v{color:var(--violet);font-weight:800}
+.ex .x{text-decoration:line-through;color:var(--bad)}
+.rule{border-right:5px solid var(--teal);background:var(--teal-soft);border-radius:10px;padding:12px 14px}
+.warn{border-right:5px solid var(--pink);background:var(--pink-soft);border-radius:10px;padding:12px 14px}
+.tbl{width:100%;border-collapse:collapse;font-size:1rem}
+.tbl td{padding:7px 8px;border-bottom:1px solid var(--line)}
+.tbl td:first-child{direction:ltr;text-align:left;font-weight:700;color:var(--violet)}
+.btn{display:block;width:100%;border:none;border-radius:14px;padding:15px;font:800 1.1rem var(--body);cursor:pointer;
+  background:var(--violet);color:#fff}
+.btn.ghost{background:var(--violet-soft);color:var(--violet)}
+.btn:focus-visible,.opt:focus-visible,.tile:focus-visible,input:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
+.prog{height:10px;background:var(--line);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--pink);border-radius:99px;transition:width .3s}
+.qhint{color:var(--muted);font-weight:700}
+.qtext{direction:ltr;text-align:left;font-size:1.35rem;font-weight:700;line-height:1.4}
+.qtext.he{direction:rtl;text-align:right}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:13px 16px;
+  font:700 1.15rem var(--body);cursor:pointer;text-align:left;direction:ltr}
+.opt.he{text-align:right;direction:rtl}
+.opt.ok{border-color:var(--teal);background:var(--teal-soft)}
+.opt.no{border-color:var(--bad);background:var(--bad-soft)}
+.opt[disabled]{cursor:default}
+input.type{width:100%;font:700 1.3rem var(--body);direction:ltr;text-align:left;padding:13px 16px;border-radius:14px;
+  border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.fb{border-radius:14px;padding:14px}
+.fb.ok{background:var(--teal-soft);border:2px solid var(--teal)}
+.fb.no{background:var(--bad-soft);border:2px solid var(--bad)}
+.fb b{display:block;margin-bottom:4px}
+.score{font-family:var(--display);font-size:3.2rem;color:var(--violet);text-align:center;font-variant-numeric:tabular-nums}
+.flash{min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;
+  cursor:pointer;user-select:none}
+.flash .big{font-family:var(--display);font-size:2.1rem}
+.flash .hint{color:var(--muted);font-size:.9rem}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+.words{columns:2;column-gap:16px;font-size:1rem}
+.words div{break-inside:avoid;padding:4px 0;border-bottom:1px solid var(--line)}
+.words .en{color:var(--violet)}
+.passage{direction:ltr;text-align:left;font-size:1.1rem;line-height:1.75}
+@media (max-width:380px){.words{columns:1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap" id="app" dir="rtl" lang="he"></div>
+
+<script>
+document.documentElement.dir='rtl';document.documentElement.lang='he';
+const SKEY='nina-english-v1';
+let best={};
+try{best=JSON.parse(localStorage.getItem(SKEY)||'{}')||{}}catch(e){best={}}
+function saveBest(k,p){if(!best[k]||p>best[k]){best[k]=p;try{localStorage.setItem(SKEY,JSON.stringify(best))}catch(e){}}}
+
+const en=s=>`<span class="en" dir="ltr">${s}</span>`;
+
+/* ---------- Topics: explanations ---------- */
+const TOPICS=[
+{id:'what',t:'מה זה Present Simple?',e:'Present Simple',html:`
+<p>זה הזמן שבו מדברים על דברים <span class="mark">שקורים שוב ושוב</span>. יש לו שלושה שימושים:</p>
+<div class="stack">
+<div><h3>1. משהו שקורה באופן קבוע</h3><p class="ex">I go to school every day.</p></div>
+<div><h3>2. הרגל</h3><p class="ex">She drinks tea in the morning.</p></div>
+<div><h3>3. עובדה</h3><p class="ex">Cats like milk.</p></div>
+</div>
+<div class="rule">איך זוכרים? אם אפשר להוסיף למשפט "כל יום" או "תמיד" והוא עדיין נשמע הגיוני, זה כנראה Present Simple.</div>`},
+
+{id:'time',t:'ביטויי זמן',e:'Time Expressions',html:`
+<p>ביטויי זמן אומרים <span class="mark">כמה פעמים</span> משהו קורה. יש שתי קבוצות.</p>
+<h3>קבוצה 1: מילה אחת</h3>
+<table class="tbl">
+<tr><td>always</td><td>תמיד</td></tr>
+<tr><td>usually</td><td>בדרך כלל</td></tr>
+<tr><td>generally</td><td>בדרך כלל, באופן כללי</td></tr>
+<tr><td>often</td><td>לעיתים קרובות</td></tr>
+<tr><td>sometimes</td><td>לפעמים</td></tr>
+<tr><td>rarely / seldom</td><td>לעיתים רחוקות</td></tr>
+<tr><td>never</td><td>אף פעם</td></tr>
+</table>
+<div class="rule"><b>איפה שמים אותה?</b> לפני הפועל הרגיל, אבל אחרי ${en('am / is / are')}.</div>
+<p class="ex">She <span class="s">often</span> <span class="v">works</span> from home.</p>
+<p class="ex">She <span class="v">is</span> <span class="s">often</span> late.</p>
+<div class="warn">טעות נפוצה: <span class="en">She often is late</span> ✗. עם ${en('is')} המילה באה <b>אחרי</b>.</div>
+<h3>קבוצה 2: כמה מילים</h3>
+<table class="tbl">
+<tr><td>every day / week / year</td><td>כל יום / שבוע / שנה</td></tr>
+<tr><td>once a week</td><td>פעם בשבוע</td></tr>
+<tr><td>twice a week</td><td>פעמיים בשבוע</td></tr>
+<tr><td>in the morning / evening</td><td>בבוקר / בערב</td></tr>
+<tr><td>on Mondays</td><td>בכל יום שני</td></tr>
+<tr><td>at noon / at night</td><td>בצהריים / בלילה</td></tr>
+</table>
+<div class="rule"><b>איפה שמים אותם?</b> בהתחלה של המשפט או בסוף שלו. אף פעם לא באמצע.</div>
+<p class="ex"><span class="s">On Mondays</span>, she works from home.</p>
+<p class="ex">She works from home <span class="s">on Mondays</span>.</p>
+<div class="rule">שימי לב: ${en('on Monday<b>s</b>')} עם s פירושו <b>כל</b> יום שני.</div>`},
+
+{id:'pos',t:'משפט חיובי (+)',e:'Positive sentences',html:`
+<p>יש רק כלל אחד שצריך לזכור: <span class="mark">הוא, היא, זה מקבלים s</span>.</p>
+<div class="stack">
+<div><h3>I, you, we, they: הפועל נשאר רגיל</h3><p class="ex">They <span class="v">eat</span> lunch.</p></div>
+<div><h3>he, she, it: מוסיפים s לפועל</h3><p class="ex">She <span class="v">eat<span class="s">s</span></span> lunch at school.</p></div>
+</div>
+<div class="rule"><b>טריק:</b> כשיש שם של אדם או חיה אחת, תחליפי אותו בראש ב-he / she / it.<br>
+${en('Tom')} = he, לכן ${en('Tom plays')}.<br>
+${en('The dog')} = it, לכן ${en('The dog runs')}.<br>
+${en('Tom and Dana')} = they, לכן ${en('Tom and Dana play')} (בלי s).</div>`},
+
+{id:'spell',t:'חוקי איות',e:'Spelling Rules',html:`
+<p>כשמוסיפים s ל-he / she / it, לפעמים צריך לשנות קצת את המילה. ככה:</p>
+<div class="stack">
+<div class="card"><h3>1. רוב הפעלים: מוסיפים s</h3><p class="ex">eat → eat<span class="s">s</span> &nbsp; play → play<span class="s">s</span> &nbsp; buy → buy<span class="s">s</span></p></div>
+<div class="card"><h3>2. נגמר ב- s, sh, ch, x, o: מוסיפים es</h3>
+<p class="ex">kiss → kiss<span class="s">es</span><br>wash → wash<span class="s">es</span><br>watch → watch<span class="s">es</span><br>fix → fix<span class="s">es</span><br>go → go<span class="s">es</span> &nbsp; do → do<span class="s">es</span></p></div>
+<div class="card"><h3>3. עיצור + y: מורידים y ומוסיפים ies</h3>
+<p class="ex">cry → cr<span class="s">ies</span><br>fly → fl<span class="s">ies</span><br>study → stud<span class="s">ies</span></p>
+<div class="rule">אבל אם לפני ה-y יש תנועה (a, e, i, o, u), רק מוסיפים s:<br>${en('play → plays, buy → buys, enjoy → enjoys')}</div></div>
+<div class="card"><h3>4. יוצא דופן</h3><p class="ex">have → <span class="s">has</span></p><p>${en('He has a dog')} ולא ${en('He haves')}.</p></div>
+</div>
+<div class="warn">אם המילה נגמרת ב-e רגילה, רק מוסיפים s: ${en('come → comes, dance → dances, like → likes')}.</div>`},
+
+{id:'neg',t:'משפט שלילי (−)',e:'Negative sentences',html:`
+<p>כדי להגיד ש<b>לא</b> עושים משהו, מוסיפים מילה לפני הפועל:</p>
+<div class="stack">
+<div><h3>I, you, we, they + don't</h3><p class="ex">We <span class="s">don't</span> <span class="v">eat</span> lunch.</p></div>
+<div><h3>he, she, it + doesn't</h3><p class="ex">She <span class="s">doesn't</span> <span class="v">eat</span> lunch at school.</p></div>
+</div>
+<div class="rule"><b>הסוד:</b> ה-s "קופצת" לתוך ${en('does')}. לכן אחרי ${en("doesn't")} הפועל חוזר להיות <span class="mark">נקי, בלי s</span>.</div>
+<p class="ex">She doesn't <span class="x">plays</span> ✗<br>She doesn't <span class="v">play</span> ✓</p>
+<p class="ex">He doesn't <span class="x">has</span> ✗<br>He doesn't <span class="v">have</span> ✓</p>
+<div class="warn">כותבים ${en("doesn't")} ולא ${en("dosen't")}. זה בא מ- ${en('does + not')}.</div>`},
+
+{id:'yn',t:'שאלות כן ולא',e:'Yes / No Questions',html:`
+<p>שאלה שעונים עליה "כן" או "לא". מתחילים ב-${en('Do')} או ${en('Does')}.</p>
+<p class="ex"><span class="s">Do</span> I / you / we / they <span class="v">eat</span> lunch?</p>
+<p class="ex"><span class="s">Does</span> he / she / it <span class="v">eat</span> lunch?</p>
+<div class="rule">גם כאן ה-s עוברת ל-${en('Does')}, אז הפועל נקי: ${en('Does she play?')} ולא ${en('Does she plays?')}</div>
+<h3>תשובות קצרות</h3>
+<p class="ex">Do you like pizza?<br>Yes, I do. / No, I don't.</p>
+<p class="ex">Does Tom work on Sundays?<br>Yes, he does. / No, he doesn't.</p>
+<div class="rule">איך הופכים משפט לשאלה?<br>${en('They play tennis.')} → ${en('<b>Do</b> they play tennis?')}<br>${en('He plays tennis.')} → ${en('<b>Does</b> he play tennis?')}</div>`},
+
+{id:'wh',t:'שאלות עם מילות שאלה',e:'WH Questions',html:`
+<p>שאלות שהתשובה עליהן היא מידע, לא "כן" או "לא".</p>
+<table class="tbl">
+<tr><td>What</td><td>מה</td></tr>
+<tr><td>Where</td><td>איפה</td></tr>
+<tr><td>When</td><td>מתי</td></tr>
+<tr><td>Who</td><td>מי</td></tr>
+<tr><td>Why</td><td>למה</td></tr>
+<tr><td>How</td><td>איך</td></tr>
+<tr><td>How often</td><td>כמה פעמים</td></tr>
+</table>
+<h3>המבנה</h3>
+<div class="rule">מילת שאלה + ${en('do / does')} + מי עושה + פועל נקי + ?</div>
+<p class="ex"><span class="s">Where</span> do you <span class="v">live</span>? &nbsp; In Haifa.</p>
+<p class="ex"><span class="s">What</span> does she <span class="v">eat</span> for breakfast?</p>
+<p class="ex"><span class="s">When</span> does the movie <span class="v">start</span>? &nbsp; At 8.</p>
+<h3>מקרה מיוחד: שואלים <u>מי</u> עושה (Wh-subject)</h3>
+<p>כששואלים ${en('Who')} על מי שעושה את הפעולה, <b>אין do / does</b>, והפועל מקבל s:</p>
+<p class="ex"><span class="s">Who</span> <span class="v">lives</span> in this house? &nbsp; Dana lives there.</p>
+<p class="ex"><span class="s">Who</span> <span class="v">plays</span> the piano?</p>`},
+];
+
+/* ---------- Vocabulary (book pages 8-9, from Nina's notebook) ---------- */
+const V=[
+['accompany','ללוות'],['afterwards','אחר כך'],['album','אלבום'],['at first','בהתחלה'],
+['café','בית קפה'],['each other','זה את זה'],['friendship','חברות'],['idea','רעיון'],
+['point','נקודה'],['purpose','מטרה'],['really','באמת, מאוד'],['slice','פרוסה'],
+['spot','מקום'],['take out','להוציא'],['to be honest','האמת היא, בכנות'],
+['announce','להכריז, להודיע'],['around','מסביב'],['attention','תשומת לב'],['bowl','קערה'],
+['career','קריירה'],['dirty','מלוכלך'],['fashion','אופנה'],['make sure','לוודא'],
+['pepper','פלפל'],['rock','סלע'],['shopping mall','קניון'],['silly','טיפשי'],
+["there's no doubt",'אין ספק'],['upset','מוטרד, כועס'],['yourself','את עצמך'],
+];
+
+/* ---------- Question banks ---------- */
+const B={
+what:[
+{h:'איזה משפט מתאר הרגל?',q:'',o:['She drinks tea every morning.','She is a girl.','The sky is blue.'],a:0,w:'"every morning" זה משהו שקורה שוב ושוב, כלומר הרגל.'},
+{h:'Present Simple משמש ל...',he:1,o:['דברים שקורים שוב ושוב ועובדות','דברים שקרו אתמול','דברים שיקרו מחר'],a:0,w:'Present Simple = קבוע, הרגלים ועובדות.'},
+],
+time:[
+{h:'בחרי את המשפט הנכון',o:['I always eat breakfast.','I eat always breakfast.','Always I eat breakfast.'],a:0,w:'מילה אחת כמו always באה לפני הפועל eat.'},
+{h:'בחרי את המשפט הנכון',o:['She is often late.','She often is late.','Often she late is.'],a:0,w:'עם is, המילה often באה אחרי is.'},
+{h:'בחרי את המשפט הנכון',o:['They are never tired.','They never are tired.','They are tired never.'],a:0,w:'never באה אחרי are.'},
+{h:'בחרי את המשפט הנכון',o:['He plays football on Mondays.','He on Mondays plays football.','He plays on Mondays football.'],a:0,w:'ביטוי של כמה מילים בא בהתחלה או בסוף, לא באמצע.'},
+{h:'בחרי את המשפט הנכון',o:['Every day, I walk to school.','I every day walk to school.','I walk every day to school.'],a:0,w:'every day בא בהתחלה או בסוף המשפט.'},
+{h:'מה פירוש המילה?',q:'rarely',o:['לעיתים רחוקות','תמיד','לעיתים קרובות'],a:0,ohe:1,w:'rarely = לעיתים רחוקות, כמעט אף פעם.'},
+{h:'מה פירוש המילה?',q:'usually',o:['בדרך כלל','אף פעם','לפעמים'],a:0,ohe:1,w:'usually = בדרך כלל.'},
+{h:'מה פירוש המילה?',q:'often',o:['לעיתים קרובות','לעיתים רחוקות','אף פעם'],a:0,ohe:1,w:'often = לעיתים קרובות.'},
+{h:'מה פירוש המילה?',q:'seldom',o:['לעיתים רחוקות','תמיד','בבוקר'],a:0,ohe:1,w:'seldom = לעיתים רחוקות, כמו rarely.'},
+{h:'השלימי',q:'He studies Italian ___ a week.',o:['twice','always','never'],a:0,w:'twice a week = פעמיים בשבוע.'},
+{h:'מה פירוש?',q:'on Sundays',o:['בכל יום ראשון','רק ביום ראשון אחד','ביום שני'],a:0,ohe:1,w:'עם s בסוף, on Sundays = כל יום ראשון.'},
+],
+pos:[
+{h:'בחרי את הצורה הנכונה',q:'She ___ pizza.',o:['likes','like'],a:0,w:'she מקבלת s.'},
+{h:'בחרי את הצורה הנכונה',q:'They ___ to school by bus.',o:['go','goes'],a:0,w:'they בלי s.'},
+{h:'בחרי את הצורה הנכונה',q:'My dog ___ in the garden.',o:['plays','play'],a:0,w:'my dog = it, לכן מוסיפים s.'},
+{h:'בחרי את הצורה הנכונה',q:'I ___ TV every night.',o:['watch','watches'],a:0,w:'I בלי s.'},
+{h:'בחרי את הצורה הנכונה',q:'Tom and Dana ___ English.',o:['speak','speaks'],a:0,w:'Tom and Dana = they, בלי s.'},
+{h:'בחרי את הצורה הנכונה',q:'The baby ___ every night.',o:['cries','crys','cry'],a:0,w:'the baby = it. cry נגמר בעיצור + y, לכן cries.'},
+{h:'בחרי את הצורה הנכונה',q:'He ___ a big brother.',o:['has','haves','have'],a:0,w:'have הופך ל-has עם he / she / it.'},
+{h:'בחרי את הצורה הנכונה',q:'We ___ pop music.',o:['like','likes'],a:0,w:'we בלי s.'},
+{h:'בחרי את הצורה הנכונה',q:'My mom ___ in an office.',o:['works','work'],a:0,w:'my mom = she, לכן works.'},
+{h:'בחרי את הצורה הנכונה',q:'She ___ her homework after school.',o:['does','dos','do'],a:0,w:'do נגמר ב-o, לכן does.'},
+],
+spell:[
+['play','plays','לפני y יש תנועה (a), לכן רק s.'],['cry','cries','עיצור + y: מורידים y ומוסיפים ies.'],
+['watch','watches','נגמר ב-ch, לכן es.'],['go','goes','נגמר ב-o, לכן es.'],['do','does','נגמר ב-o, לכן es.'],
+['fix','fixes','נגמר ב-x, לכן es.'],['wash','washes','נגמר ב-sh, לכן es.'],['study','studies','עיצור + y: ies.'],
+['have','has','יוצא דופן: have → has.'],['eat','eats','רגיל: מוסיפים s.'],['kiss','kisses','נגמר ב-s, לכן es.'],
+['fly','flies','עיצור + y: ies.'],['buy','buys','לפני y יש תנועה (u), לכן רק s.'],['come','comes','רגיל: מוסיפים s.'],
+['dance','dances','רגיל: מוסיפים s.'],['finish','finishes','נגמר ב-sh, לכן es.'],['enjoy','enjoys','לפני y יש תנועה (o), לכן רק s.'],
+['try','tries','עיצור + y: ies.'],['drink','drinks','רגיל: מוסיפים s.'],['get','gets','רגיל: מוסיפים s.'],
+].map(([v,a,w])=>({k:'type',h:'כתבי את הפועל עם he / she / it',q:`he ___ (${v})`,a:[a],w})),
+neg:[
+{h:'בחרי את המילה הנכונה',q:"She ___ like chocolate.",o:["doesn't","don't"],a:0,w:"she → doesn't."},
+{h:'בחרי את המילה הנכונה',q:"We ___ play soccer on Mondays.",o:["don't","doesn't"],a:0,w:"we → don't."},
+{h:'בחרי את המילה הנכונה',q:"Tom ___ live in Tel Aviv.",o:["doesn't","don't"],a:0,w:"Tom = he → doesn't."},
+{h:'בחרי את המילה הנכונה',q:"I ___ know the answer.",o:["don't","doesn't"],a:0,w:"I → don't."},
+{h:'בחרי את המילה הנכונה',q:"The dog ___ eat vegetables.",o:["doesn't","don't"],a:0,w:"the dog = it → doesn't."},
+{h:'בחרי את המשפט הנכון',o:["She doesn't play the piano.","She doesn't plays the piano.","She don't play the piano."],a:0,w:"אחרי doesn't הפועל נקי, בלי s."},
+{h:'בחרי את המשפט הנכון',o:["He doesn't have a phone.","He doesn't has a phone.","He don't have a phone."],a:0,w:"אחרי doesn't חוזרים ל-have."},
+{h:'הפכי לשלילה: Tom works on Sundays.',o:["Tom doesn't work on Sundays.","Tom doesn't works on Sundays.","Tom don't work on Sundays."],a:0,w:"doesn't + פועל נקי (work)."},
+{h:'הפכי לשלילה: They eat breakfast at school.',o:["They don't eat breakfast at school.","They doesn't eat breakfast at school.","They don't eats breakfast at school."],a:0,w:"they → don't, והפועל נשאר eat."},
+{h:'בחרי את הכתיב הנכון',o:["doesn't","dosen't","does'nt"],a:0,w:"does + not = doesn't."},
+],
+yn:[
+{h:'בחרי את המילה הנכונה',q:"___ you like pizza?",o:['Do','Does'],a:0,w:'you → Do.'},
+{h:'בחרי את המילה הנכונה',q:"___ she live in Haifa?",o:['Does','Do'],a:0,w:'she → Does.'},
+{h:'בחרי את המילה הנכונה',q:"Does he ___ football?",o:['play','plays'],a:0,w:'אחרי Does הפועל נקי.'},
+{h:'בחרי את המילה הנכונה',q:"___ your parents work?",o:['Do','Does'],a:0,w:'your parents = they → Do.'},
+{h:'בחרי את התשובה הנכונה',q:"Do you have a pet?",o:["Yes, I do.","Yes, I does.","Yes, I have."],a:0,w:'Do you...? → Yes, I do.'},
+{h:'בחרי את התשובה הנכונה',q:"Does your mom cook?",o:["No, she doesn't.","No, she don't.","No, she isn't."],a:0,w:"Does she...? → No, she doesn't."},
+{h:'הפכי לשאלה: They play tennis.',o:['Do they play tennis?','Does they play tennis?','They play tennis?'],a:0,w:'they → Do בהתחלה.'},
+{h:'הפכי לשאלה: He studies English.',o:['Does he study English?','Does he studies English?','Do he study English?'],a:0,w:'Does בהתחלה, והפועל חוזר ל-study.'},
+{h:'בחרי את המילה הנכונה',q:"___ the cat sleep a lot?",o:['Does','Do'],a:0,w:'the cat = it → Does.'},
+],
+wh:[
+{h:'בחרי את מילת השאלה',q:"___ do you live? In Haifa.",o:['Where','When','Who'],a:0,w:'התשובה היא מקום, לכן Where (איפה).'},
+{h:'בחרי את מילת השאלה',q:"___ does the movie start? At 8.",o:['When','Where','What'],a:0,w:'התשובה היא זמן, לכן When (מתי).'},
+{h:'בחרי את מילת השאלה',q:"___ do you go to school? By bus.",o:['How','Who','Where'],a:0,w:'התשובה היא דרך, לכן How (איך).'},
+{h:'בחרי את מילת השאלה',q:"___ is your teacher? Ms. Cohen.",o:['Who','What','Why'],a:0,w:'התשובה היא אדם, לכן Who (מי).'},
+{h:'בחרי את מילת השאלה',q:"___ do you cry? Because I am sad.",o:['Why','How','When'],a:0,w:'התשובה מתחילה ב-Because, לכן Why (למה).'},
+{h:'בחרי את המילה הנכונה',q:"What ___ she eat for breakfast?",o:['does','do'],a:0,w:'she → does.'},
+{h:'בחרי את המילה הנכונה',q:"Where ___ they go after school?",o:['do','does'],a:0,w:'they → do.'},
+{h:'בחרי את המשפט הנכון',o:['Where does he work?','Where he works?','Where does he works?'],a:0,w:'מילת שאלה + does + he + פועל נקי.'},
+{h:'בחרי את המשפט הנכון (שואלים מי עושה)',o:['Who lives in this house?','Who does live in this house?','Who live in this house?'],a:0,w:'כששואלים מי עושה את הפעולה: Who + פועל עם s, בלי do / does.'},
+{h:'בחרי את מילת השאלה',q:"___ do you play tennis? Twice a week.",o:['How often','Where','Who'],a:0,w:'התשובה היא כמה פעמים, לכן How often.'},
+],
+};
+
+/* ---------- Unseen ---------- */
+const PASSAGE=`Lily and Dana are best friends. They meet at a small café near the shopping mall every Friday. At first, they always order a big bowl of salad with pepper. Afterwards, Dana usually takes out her photo album and they look at old pictures together.
+
+Lily loves fashion. She wants a career as a designer, and she often draws dresses in her notebook. Dana doesn't like fashion, but she always pays attention to Lily's ideas.
+
+Sometimes Lily is upset about school. Then Dana makes sure Lily feels better. To be honest, there's no doubt: their friendship is really special.`;
+const UNSEEN=[
+{h:'Where do Lily and Dana meet?',o:['At a café near the shopping mall','At school','At Dana\'s house'],a:0,w:'בשורה השנייה: at a small café near the shopping mall.'},
+{h:'How often do they meet?',o:['Every Friday','Every day','Twice a week'],a:0,w:'every Friday = כל יום שישי.'},
+{h:'What do they eat at first?',o:['A bowl of salad','A slice of pizza','Chocolate'],a:0,w:'At first, they always order a big bowl of salad.'},
+{h:'What does Dana take out?',o:['Her photo album','Her notebook','Her phone'],a:0,w:'Dana usually takes out her photo album.'},
+{h:'What career does Lily want?',o:['A designer','A teacher','A doctor'],a:0,w:'She wants a career as a designer.'},
+{h:'True or False: Dana loves fashion.',o:['False','True'],a:0,w:"Dana doesn't like fashion."},
+{h:'What does Dana do when Lily is upset?',o:['She makes sure Lily feels better','She goes home','She draws dresses'],a:0,w:'Dana makes sure Lily feels better.'},
+].map(x=>({...x,qen:1}));
+
+/* ---------- Helpers ---------- */
+const app=document.getElementById('app');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>s.toLowerCase().replace(/[’‘`]/g,"'").replace(/[.?!]+$/,'').replace(/\s+/g,' ').trim();
+const isHe=s=>/[֐-׿]/.test(s);
+function bestTag(k){return best[k]!=null?`<span class="best">שיא: ${best[k]}%</span>`:''}
+
+function vocabQs(n){
+  return shuffle(V).slice(0,n).map((w,i)=>{
+    const toHe=i%2===0;
+    const others=shuffle(V.filter(x=>x!==w)).slice(0,3);
+    const o=[w,...others].map(x=>toHe?x[1]:x[0]);
+    return {h:toHe?'מה הפירוש בעברית?':'איך אומרים באנגלית?',q:toHe?w[0]:w[1],o,a:0,ohe:toHe?1:0,
+      w:`${w[0]} = ${w[1]}`};
+  });
+}
+
+/* ---------- Views ---------- */
+function home(){
+  app.innerHTML=`
+  <div class="stack">
+    <div class="hello stack" style="gap:4px">
+      <h1>היי נינה!</h1>
+      <p>כל החומר למבחן באנגלית. קודם קוראים הסבר קצר, ואז מתרגלים.</p>
+    </div>
+    <div class="sec-label">לומדים</div>
+    <div class="grid">
+      ${TOPICS.map((t,i)=>`<button class="tile" data-learn="${i}"><b>${t.t}</b><small>${t.e}</small>${bestTag(t.id)}</button>`).join('')}
+      <button class="tile" data-go="words"><b>אוצר מילים</b><small>Vocabulary · pg 8–9</small>${bestTag('vocab')}</button>
+    </div>
+    <div class="sec-label">מתרגלים</div>
+    <div class="grid">
+      <button class="tile wide" data-quiz="all"><b>מבחן חזרה על הכל</b><small>16 questions</small>${bestTag('all')}</button>
+      <button class="tile" data-go="cards"><b>כרטיסיות מילים</b><small>Flashcards</small></button>
+      <button class="tile" data-go="unseen"><b>אנסין</b><small>Unseen</small>${bestTag('unseen')}</button>
+    </div>
+  </div>`;
+  app.querySelectorAll('[data-learn]').forEach(b=>b.onclick=()=>learn(+b.dataset.learn));
+  app.querySelectorAll('[data-quiz]').forEach(b=>b.onclick=()=>startQuiz(b.dataset.quiz));
+  app.querySelector('[data-go="words"]').onclick=words;
+  app.querySelector('[data-go="cards"]').onclick=cards;
+  app.querySelector('[data-go="unseen"]').onclick=unseen;
+  window.scrollTo(0,0);
+}
+
+function topbar(title){return `<div class="top"><button class="back" id="back">→ חזרה</button><span class="qhint">${title||''}</span></div>`}
+
+function learn(i){
+  const t=TOPICS[i];
+  app.innerHTML=`${topbar()}
+  <div class="stack">
+    <div><h2>${t.t}</h2><div class="qhint" dir="ltr" style="text-align:right">${t.e}</div></div>
+    ${t.html}
+    <button class="btn" id="go">תרגלי את הנושא</button>
+    ${i<TOPICS.length-1?`<button class="btn ghost" id="next">לנושא הבא: ${TOPICS[i+1].t}</button>`:`<button class="btn ghost" id="next">לאוצר המילים</button>`}
+  </div>`;
+  back();
+  document.getElementById('go').onclick=()=>startQuiz(t.id);
+  document.getElementById('next').onclick=()=>i<TOPICS.length-1?learn(i+1):words();
+  window.scrollTo(0,0);
+}
+
+function words(){
+  app.innerHTML=`${topbar()}
+  <div class="stack">
+    <h2>אוצר מילים</h2>
+    <p class="qhint">ספר עמודים 8 ו-9</p>
+    <div class="card words">${V.map(w=>`<div><span class="en">${esc(w[0])}</span> · ${w[1]}</div>`).join('')}</div>
+    <button class="btn" id="q">מבחן מילים</button>
+    <button class="btn ghost" id="c">כרטיסיות</button>
+  </div>`;
+  back();
+  document.getElementById('q').onclick=()=>startQuiz('vocab');
+  document.getElementById('c').onclick=cards;
+  window.scrollTo(0,0);
+}
+
+function cards(){
+  let deck=shuffle(V),i=0,flip=false;
+  function draw(){
+    const w=deck[i];
+    app.innerHTML=`${topbar(`${i+1} / ${deck.length}`)}
+    <div class="stack">
+      <h2>כרטיסיות</h2>
+      <div class="card flash" id="f" tabindex="0" role="button">
+        <div class="big" ${flip?'':'dir="ltr"'}>${flip?w[1]:esc(w[0])}</div>
+        <div class="hint">${flip?esc(w[0]):'לחצי כדי לראות את הפירוש'}</div>
+      </div>
+      <div class="row"><button class="btn ghost" id="p">הקודמת</button><button class="btn" id="n">הבאה</button></div>
+      <button class="btn ghost" id="s">ערבבי מחדש</button>
+    </div>`;
+    back();
+    const f=document.getElementById('f');
+    f.onclick=()=>{flip=!flip;draw()};
+    f.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip=!flip;draw()}};
+    document.getElementById('n').onclick=()=>{i=(i+1)%deck.length;flip=false;draw()};
+    document.getElementById('p').onclick=()=>{i=(i-1+deck.length)%deck.length;flip=false;draw()};
+    document.getElementById('s').onclick=()=>{deck=shuffle(V);i=0;flip=false;draw()};
+  }
+  draw();window.scrollTo(0,0);
+}
+
+function unseen(){
+  app.innerHTML=`${topbar()}
+  <div class="stack">
+    <h2>אנסין</h2>
+    <div class="rule"><b>איך עונים על אנסין:</b><br>1. קוראים קודם את השאלות.<br>2. מחפשים בקטע את המילים מהשאלה.<br>3. התשובה כמעט תמיד כתובה ממש ליד.<br>4. לא נבהלים ממילה לא מוכרת. ממשיכים לקרוא.</div>
+    <div class="card passage">${esc(PASSAGE).replace(/\n\n/g,'<br><br>')}</div>
+    <button class="btn" id="go">לשאלות</button>
+  </div>`;
+  back();
+  document.getElementById('go').onclick=()=>startQuiz('unseen');
+  window.scrollTo(0,0);
+}
+
+function back(){const b=document.getElementById('back');if(b)b.onclick=home}
+
+/* ---------- Quiz engine ---------- */
+const NAMES={all:'מבחן חזרה',vocab:'מבחן מילים',unseen:'אנסין'};
+function startQuiz(key){
+  let qs;
+  if(key==='all'){qs=[];['time','pos','spell','neg','yn','wh'].forEach(k=>qs.push(...shuffle(B[k]).slice(0,2)));qs.push(...vocabQs(4));qs=shuffle(qs)}
+  else if(key==='vocab')qs=vocabQs(12);
+  else if(key==='unseen')qs=UNSEEN.slice();
+  else qs=shuffle(B[key]).slice(0,10);
+  const title=NAMES[key]||(TOPICS.find(t=>t.id===key)||{}).t;
+  let i=0,score=0,miss=[];
+
+  function draw(){
+    const q=qs[i];
+    const opts=q.k==='type'?null:shuffle(q.o.map((t,j)=>({t,ok:j===q.a})));
+    const optHe=q.ohe||(opts&&isHe(opts[0].t));
+    app.innerHTML=`${topbar(`${title} · ${i+1}/${qs.length}`)}
+    <div class="stack">
+      <div class="prog"><i style="width:${(i/qs.length)*100}%"></i></div>
+      <div class="card stack">
+        <div class="${q.qen?'qtext':'qhint'}">${esc(q.h)}</div>
+        ${q.q?`<div class="qtext ${isHe(q.q)?'he':''}">${esc(q.q)}</div>`:''}
+        ${q.k==='type'
+          ?`<input class="type" id="inp" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="type here"><button class="btn" id="chk">בדיקה</button>`
+          :`<div class="opts">${opts.map((o,j)=>`<button class="opt ${optHe?'he':''}" data-j="${j}">${esc(o.t)}</button>`).join('')}</div>`}
+        <div id="fb"></div>
+      </div>
+    </div>`;
+    back();
+    if(q.k==='type'){
+      const inp=document.getElementById('inp'),chk=document.getElementById('chk');
+      inp.focus();
+      const go=()=>{if(!inp.value.trim())return;const ok=q.a.map(norm).includes(norm(inp.value));inp.disabled=true;chk.remove();done(ok,q.a[0],inp.value)};
+      chk.onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};
+    }else{
+      app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+        const pick=opts[+b.dataset.j];
+        app.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(opts[j].ok)x.classList.add('ok')});
+        if(!pick.ok)b.classList.add('no');
+        done(pick.ok,q.o[q.a],pick.t);
+      });
+    }
+  }
+  function done(ok,right,given){
+    const q=qs[i];
+    if(ok)score++;else miss.push({q,right,given});
+    const praise=['כל הכבוד!','מעולה!','נכון!','יפה מאוד!','בדיוק!'];
+    document.getElementById('fb').innerHTML=`
+      <div class="fb ${ok?'ok':'no'}"><b>${ok?praise[Math.floor(Math.random()*praise.length)]:'לא נורא, ככה לומדים.'}</b>
+      ${ok?'':`התשובה הנכונה: <span class="en">${esc(right)}</span><br>`}${esc(q.w)}</div>
+      <button class="btn" id="nx" style="margin-top:12px">${i<qs.length-1?'לשאלה הבאה':'לתוצאה'}</button>`;
+    const nx=document.getElementById('nx');nx.focus();
+    nx.onclick=()=>{i++;i<qs.length?draw():end()};
+  }
+  function end(){
+    const pct=Math.round(score/qs.length*100);
+    saveBest(key,pct);
+    const msg=pct>=90?'וואו, את מוכנה למבחן!':pct>=70?'יפה מאוד! עוד קצת חזרה ואת שם.':pct>=50?'התחלה טובה. כדאי לקרוא שוב את ההסבר ולנסות עוד פעם.':'בואי נקרא שוב את ההסבר ונתרגל עוד פעם. זה יבוא.';
+    app.innerHTML=`${topbar(title)}
+    <div class="stack">
+      <div class="card stack" style="text-align:center">
+        <div class="score">${score}/${qs.length}</div>
+        <h3>${msg}</h3>
+      </div>
+      ${miss.length?`<div class="sec-label">לחזרה: השאלות שטעית בהן</div>
+      <div class="stack">${miss.map(m=>`<div class="card stack" style="gap:6px">
+        <div class="qhint">${esc(m.q.h)}</div>
+        ${m.q.q?`<div class="qtext ${isHe(m.q.q)?'he':''}" style="font-size:1.1rem">${esc(m.q.q)}</div>`:''}
+        <div>התשובה הנכונה: <span class="en" style="color:var(--teal)">${esc(m.right)}</span></div>
+        <div class="qhint" style="font-weight:400">${esc(m.q.w)}</div></div>`).join('')}</div>`:''}
+      <button class="btn" id="again">עוד סיבוב</button>
+      <button class="btn ghost" id="h">לתפריט</button>
+    </div>`;
+    back();
+    document.getElementById('again').onclick=()=>startQuiz(key);
+    document.getElementById('h').onclick=home;
+    window.scrollTo(0,0);
+  }
+  draw();window.scrollTo(0,0);
+}
+
+home();
+</script>
